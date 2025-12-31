@@ -18,3 +18,4 @@
 *.vrb
 *.bcf
 *.run.xml
+*(busy)
