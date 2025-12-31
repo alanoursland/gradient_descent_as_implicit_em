@@ -1,0 +1,63 @@
+\section{Main Result: Responsibilities Are Gradients}
+
+We now state and derive the central result. The derivation is elementary---a single application of the chain rule---but its implications are significant. We show that for log-sum-exp objectives over distances, the gradient with respect to each distance is exactly the negative responsibility of the corresponding component. This identity requires no approximations and holds for any model that computes distances and optimizes an LSE objective via gradient descent. The derivative itself is a textbook calculation; the contribution is recognizing that the resulting quantity is exactly the posterior responsibility, and that this makes every gradient step a responsibility-weighted update.
+
+\subsection{Derivation}
+
+Let $d_j(x)$ denote the distance or energy associated with component $j$ for input $x$. Define unnormalized likelihoods $P_j = \exp(-d_j)$ and the partition function $Z = \sum_k \exp(-d_k)$. Consider the log-sum-exp objective:
+
+\begin{equation}
+L = \log \sum_{j=1}^{K} \exp(-d_j) = \log Z
+\end{equation}
+
+We compute the gradient of $L$ with respect to a single distance $d_i$:
+
+\[
+\frac{\partial L}{\partial d_i} = \frac{1}{Z} \cdot \frac{\partial}{\partial d_i} \sum_{j=1}^{K} \exp(-d_j)
+\]
+
+Only the $i$-th term in the sum depends on $d_i$:
+
+\[
+\frac{\partial L}{\partial d_i} = \frac{1}{Z} \cdot \frac{\partial}{\partial d_i} \exp(-d_i) = \frac{1}{Z} \cdot (-1) \cdot \exp(-d_i)
+\]
+
+Simplifying:
+
+\[
+\frac{\partial L}{\partial d_i} = -\frac{\exp(-d_i)}{\sum_k \exp(-d_k)}
+\]
+
+The right-hand side is the negative of the normalized exponential---precisely the responsibility $r_i$ as defined in Section 2.2. This yields the main result.
+
+\begin{theorem}
+For any objective of the form $L = \log \sum_j \exp(-d_j)$, the gradient with respect to the $j$-th distance is the negative responsibility of component $j$:
+
+\begin{equation}
+\frac{\partial L}{\partial d_j} = -r_j \quad \text{where} \quad r_j = \frac{\exp(-d_j)}{\sum_k \exp(-d_k)}
+\end{equation}
+
+No approximations have been made. The identity holds exactly whenever the objective has LSE form and the distances are differentiable.
+\end{theorem}
+
+\subsection{What This Means}
+
+The theorem admits a direct interpretation: responsibilities are not quantities that must be computed and stored. They are gradients. Any system that computes distances, applies a log-sum-exp objective, and updates parameters via gradient descent is already computing responsibilities---not as an intermediate step, but as the learning signal itself.
+
+Consider what happens during training. The forward pass computes distances $d_j$ and evaluates the objective $L = \log \sum_j \exp(-d_j)$. This computation implicitly determines the responsibilities $r_j = \exp(-d_j) / Z$, but they are never explicitly represented. Backpropagation then computes $\partial L / \partial d_j = -r_j$, and the chain rule propagates this gradient to the parameters that produced $d_j$. The parameters of component $j$ receive gradient signal proportional to $r_j$---the responsibility of that component for the input.
+
+This is exactly the M-step of expectation-maximization. In classical EM, responsibilities are computed in the E-step and then used to weight parameter updates in the M-step. Here, no E-step is required as a separate operation. The forward pass \emph{is} the E-step; the backward pass \emph{is} the M-step. The two are fused into a single gradient computation.
+
+The consequence is that EM is not approximated by gradient descent on LSE objectives. It is not resembled, not analogized, not approached in some limit. It is \emph{performed}. The discrete alternation of classical EM---compute responsibilities, then update parameters, then repeat---collapses into continuous, simultaneous optimization. Every gradient step is a responsibility-weighted update. Every trained network has been doing EM all along.
+
+\subsection{Conditions}
+
+The result depends on three structural conditions. When all three are satisfied, implicit EM dynamics are not optional---they are forced by the mathematics.
+
+\textbf{Exponentiation.} The distances must be passed through an exponential to form unnormalized likelihoods $P_j = \exp(-d_j)$. This transformation converts additive differences in distance into multiplicative ratios in likelihood. Without exponentiation, the gradient with respect to $d_j$ does not yield a normalized quantity, and responsibilities do not emerge.
+
+\textbf{Normalization.} The likelihoods must be normalized across alternatives, either explicitly through softmax or implicitly through the log-sum-exp structure. Normalization induces competition: increasing the likelihood of one component necessarily decreases the relative likelihood of others. This competition is what makes responsibilities sum to one and what causes gradient signal to be distributed according to relative fit. Without normalization, components operate independently, and there is no assignment structure.
+
+\textbf{Gradient-based optimization.} The parameters must be updated via gradients of the objective. The identity $\partial L / \partial d_j = -r_j$ is a fact about the loss surface; it becomes a fact about learning dynamics only when gradient descent (or a variant) is used. Other optimization methods---evolutionary strategies, random search, discrete updates---would not automatically inherit the responsibility-weighted structure.
+
+When these conditions hold, there is no additional design choice that enables or disables EM-like behavior. It is a consequence of the objective geometry. Any architecture that computes distances, normalizes via exponentiation, and trains with gradients will exhibit implicit EM. The question is not whether such a system performs expectation-maximization, but whether we recognize that it does.

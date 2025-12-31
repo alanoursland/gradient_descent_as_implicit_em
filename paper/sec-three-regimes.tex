@@ -1,0 +1,83 @@
+\section{Three Regimes of Implicit Inference}
+
+The same mechanism manifests differently under different constraints:
+
+\subsection{Unsupervised Regime: Mixture Learning}
+
+In the purest case, the log-sum-exp objective operates without supervision. A model computes distances $d_j(x)$ from an input to each of $K$ components, and training minimizes:
+
+\begin{equation}
+L = -\log \sum_{j=1}^{K} \exp(-d_j)
+\end{equation}
+
+This is the negative log marginal likelihood---the objective used in classical mixture model fitting. All components compete for every input. No labels constrain which component should win.
+
+By Theorem 1, the gradient with respect to each distance is the negative responsibility: $\partial L / \partial d_j = -r_j$. (The sign flip from Section 3 reflects the switch from maximizing log-likelihood to minimizing its negative; the dynamics are identical.) Components that are close to an input (low $d_j$, high $r_j$) receive strong gradient signal to move closer. Components that are far (high $d_j$, low $r_j$) receive weak signal and remain largely unchanged. This is precisely the M-step dynamic of Gaussian mixture models: prototypes update toward data points in proportion to their responsibility for those points.
+
+The result is spontaneous specialization. Even with random initialization, components differentiate over training. Each prototype drifts toward a region of input space for which it consistently takes high responsibility, while ceding other regions to competitors. Clustering emerges not because it was specified but because the objective geometry forces responsibility-weighted updates.
+
+This regime corresponds exactly to classical EM on mixture models. The difference is algorithmic, not mathematical: classical EM alternates discrete E-steps and M-steps, while gradient descent performs both continuously. The fixed points---and the path toward them---are governed by the same responsibilities.
+
+\subsection{Conditional Regime: Attention Mechanisms}
+
+Attention mechanisms instantiate the same structure in a conditional setting. For a query $q_i$ and a set of keys $\{k_j\}$, attention scores are computed as:
+
+\[
+s_{ij} = \frac{q_i^\top k_j}{\sqrt{d_k}}
+\]
+
+These scores act as negative distances: high scores indicate proximity in the query-key space. Softmax normalization converts scores to attention weights:
+
+\[
+\alpha_{ij} = \frac{\exp(s_{ij})}{\sum_m \exp(s_{im})}
+\]
+
+The attention weights satisfy the definition of responsibilities exactly. They are non-negative, sum to one across keys, and represent the degree to which each key ``explains'' the query. The output is a responsibility-weighted combination of values: $o_i = \sum_j \alpha_{ij} v_j$. This is not an analogy to mixture modeling. It is mixture modeling, conditioned on the query.
+
+A clarification is essential here. In a Gaussian mixture model, the prototypes---the component means---are persistent parameters updated across training. In attention, the value vectors $v_j = W_V x_j$ are input-derived. They change with every forward pass. This appears to break the analogy: what is being learned if the prototypes are transient?
+
+The resolution is that the prototype is not the value vector itself but the value projection. The matrix $W_V$ defines a learned mapping from inputs to prototype space. Each input indexes into this mapping, producing a transient value, but the mapping itself is persistent. Gradients flow through the attention weights to $W_V$ via the chain rule, and these gradients are responsibility-weighted. The update to $W_V$ from input $x_j$ is scaled by how much responsibility the corresponding value took across queries. This is the M-step, applied not to fixed prototypes but to the parameters of a prototype-generating function.
+
+The EM dynamics thus operate across training, not within a single forward pass. Each forward pass computes responsibilities (attention weights) given current parameters. Each backward pass updates those parameters in proportion to the responsibilities. Over the course of training, $W_V$ specializes: it learns to produce values that are useful precisely to the queries that attend to them.
+
+Attention is conditional mixture inference. The query specifies the context; the keys define candidate components; the values represent what each component contributes. The mixture is re-instantiated for every query, but the underlying parameters---$W_Q$, $W_K$, $W_V$---accumulate responsibility-weighted updates across all queries and all training examples. This is implicit EM in function space rather than data space.
+
+\subsection{Constrained Regime: Cross-Entropy Classification}
+
+Cross-entropy classification introduces supervision, but it does not escape the implicit EM framework. It constrains it.
+
+In standard classification, the model produces logits $z_j$ for each class. Interpreting logits as negative distances ($d_j = -z_j$), the cross-entropy loss for a sample with label $y$ is:
+
+\[
+L = -z_y + \log \sum_k \exp(z_k) = d_y + \log \sum_k \exp(-d_k)
+\]
+
+This is the log-sum-exp objective plus a term that penalizes the distance to the correct class. Computing the gradient with respect to $d_j$:
+
+\[
+\frac{\partial L}{\partial d_j} = \frac{\exp(-d_j)}{\sum_k \exp(-d_k)} - \mathbb{1}[j = y] = r_j - \mathbb{1}[j = y]
+\]
+
+For incorrect classes ($j \neq y$), the gradient is simply $r_j$: they are pushed away in proportion to their current responsibility. For the correct class ($j = y$), the gradient is $r_y - 1$: it is pulled closer, with strength proportional to how much responsibility it is \emph{missing}.
+
+The label acts as a clamp. In unsupervised mixture learning, responsibilities are entirely latent---the data determines which component wins. In cross-entropy, the label declares that the correct class \emph{should} have responsibility 1. The gradient then corrects any deviation from this target. If the correct class already dominates ($r_y \approx 1$), the gradient is small. If incorrect classes have stolen probability mass ($r_y < 1$), the gradient is large.
+
+Competition among incorrect classes remains intact. When the model misclassifies, the responsibility mass is distributed among wrong answers, and each receives gradient signal proportional to its share. The classes that are ``most wrong''---those with highest $r_j$---are penalized most strongly. This is not uniform repulsion; it is responsibility-weighted correction.
+
+Cross-entropy does not eliminate the EM dynamics; it directs them. The M-step still updates components in proportion to their responsibilities, but supervision biases the process toward a predetermined assignment. This explains why cross-entropy is so effective despite its simplicity: it inherits the soft competition and automatic weighting of mixture models while channeling those dynamics toward a supervised target. The loss function is doing more work than its familiar form suggests.
+
+\subsection{The Taxonomy}
+
+The three regimes---unsupervised, conditional, constrained---differ in what is observed and what is latent. But they share a common structure: exponentiation of distances followed by normalization across alternatives. This structure is what produces responsibilities, and responsibilities are what produce implicit EM.
+
+The critical factor is normalization. When outputs are normalized---whether by softmax, by the log-sum-exp partition function, or by any operation that forces a sum-to-one constraint---components compete. An increase in one component's likelihood necessarily decreases the relative likelihood of others. This competition is the source of assignment: each input is probabilistically allocated across components, and gradients distribute accordingly.
+
+Remove normalization, and the structure collapses. Consider objectives based on Gaussian kernels without a partition function, such as maximum correntropy:
+
+\[
+L = 1 - \exp(-d^2 / \sigma^2)
+\]
+
+Here, each component operates independently. A point far from all prototypes produces vanishing gradients for all of them---not because responsibility has been assigned elsewhere, but because no competition exists to distribute. There is no implicit E-step because there are no responsibilities. The objective gains robustness to outliers (points far from all prototypes are effectively ignored) but loses the assignment structure entirely.
+
+This clarifies the design space. Exponentiation converts distances to likelihoods; normalization converts likelihoods to responsibilities. With both, implicit EM is unavoidable. With exponentiation alone, the model gains robustness but abandons inference. The choice of objective is a choice about whether the model should assign or ignore---and that choice is made at the level of the loss function, not the architecture.

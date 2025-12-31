@@ -1,0 +1,39 @@
+\section{Introduction}
+
+Neural networks trained with standard objectives repeatedly exhibit behaviors associated with probabilistic inference: soft clustering, prototype specialization, uncertainty tracking, and mixture-model dynamics. These phenomena appear across architectures---in attention mechanisms, classification heads, and energy-based models---yet their origin has remained unclear. Are they emergent properties of scale? Architectural accidents? Or something more fundamental? This paper argues that such behaviors are none of these. They are necessary consequences of the geometry of common objective functions.
+
+\subsection{The Puzzle}
+
+Consider the range of phenomena that appear, unbidden, in trained neural networks. Attention heads in transformers learn to specialize, each routing information for distinct semantic roles. Classification networks partition representation space into regions that behave like mixture components. Deep networks trained on noisy data exhibit robustness patterns reminiscent of Bayesian inference, down-weighting outliers and tracking uncertainty across inputs. These behaviors emerge without explicit probabilistic modeling, without mixture-model architectures, and without any algorithm resembling expectation-maximization.
+
+The standard explanations are unsatisfying. One view holds that these are emergent properties of scale---that sufficient parameters and data somehow give rise to statistical structure. Another treats them as architectural coincidences, artifacts of specific design choices like softmax normalization or residual connections. A third offers loose analogies: attention is ``like'' soft clustering; cross-entropy ``resembles'' a mixture model. None of these explanations answers the deeper question: \emph{why do these specific behaviors appear, rather than others?} And why do they appear so reliably, across such different architectures and tasks?
+
+\subsection{Recent Evidence}
+
+Recent work by \citet{aggarwal2025geometry,aggarwal2025gradient} has sharpened this puzzle considerably. In controlled experimental settings---``Bayesian wind tunnels'' where the true posterior is analytically known---small transformers reproduce Bayesian posteriors with sub-bit precision. This is not approximate Bayesian behavior; it is exact, verifiable, position-by-position agreement with the analytic solution. Capacity-matched MLPs trained under identical conditions fail completely, suggesting that the phenomenon depends on the inductive biases of attention rather than optimization alone.
+
+More striking still is what Aggarwal et al.\ find in the gradient dynamics. Attention weights stabilize early in training while value vectors continue to refine---a two-timescale structure that mirrors the E-step and M-step of classical expectation-maximization. Values receive updates weighted by attention, precisely as prototypes receive updates weighted by responsibilities in mixture models. The authors provide a complete first-order analysis showing that this structure is not incidental but systematic.
+
+Yet Aggarwal et al.\ explicitly characterize this EM connection as ``structural rather than variational''---an analogy, not a derivation. They observe that attention \emph{behaves like} EM but do not claim that EM is a necessary consequence of the objective. The question of \emph{why} cross-entropy training produces Bayesian geometry remains, in their framing, open.
+
+\subsection{This Paper}
+
+This paper closes that gap. We show that for objectives with log-sum-exp structure over distances or energies, the gradient of the loss with respect to each distance is exactly the posterior responsibility of the corresponding component. This is not an approximation, not a resemblance, not an analogy. It is an algebraic identity:
+
+\begin{equation}
+\frac{\partial L}{\partial d_j} = -r_j
+\end{equation}
+
+The immediate consequence is that gradient descent on such objectives \emph{is} expectation-maximization, performed continuously rather than in discrete alternating steps. The forward pass computes unnormalized likelihoods; normalization yields responsibilities; backpropagation delivers responsibility-weighted updates to parameters. No auxiliary latent variables are introduced. No inference algorithm is invoked. The architecture does not approximate EM---it implements EM, because the gradient \emph{is} the responsibility.
+
+This reframes the relationship between optimization and inference. Inference is not a separate algorithmic layer added on top of learning. It is not a post-hoc interpretation of learned representations. Under the objectives we analyze, inference and optimization are the same computation viewed at different levels of abstraction. The Bayesian structure observed by Aggarwal et al.\ is not an emergent property that happens to appear; it is forced by the geometry of the loss.
+
+\subsection{Contributions}
+
+The contributions of this paper are deliberately narrow and can be summarized as three claims at increasing levels of abstraction.
+
+\textbf{One theorem.} For any objective of the form $L = \log \sum_j \exp(-d_j)$, the gradient with respect to each distance satisfies $\partial L / \partial d_j = -r_j$, where $r_j$ is the normalized exponential---the responsibility of component $j$. This result is derived, not assumed, and requires no conditions beyond differentiability.
+
+\textbf{One interpretation.} This identity implies that gradient descent on distance-based log-sum-exp objectives performs implicit expectation-maximization. The E-step is the forward pass; the M-step is the parameter update; responsibilities are never explicitly computed because they \emph{are} the gradients. EM is not approximated by neural training---it is realized by it.
+
+\textbf{One unification.} The same mechanism manifests across three regimes depending on the constraints imposed. In the \emph{unsupervised} regime, responsibilities are fully latent and prototypes compete freely. In the \emph{conditional} regime---attention---responsibilities are recomputed per query over a shared prototype family. In the \emph{constrained} regime---cross-entropy classification---supervision clamps one responsibility while competition persists among alternatives. These are not three different phenomena. They are one phenomenon under different boundary conditions.

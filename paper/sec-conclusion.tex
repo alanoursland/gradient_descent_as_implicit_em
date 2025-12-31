@@ -1,0 +1,9 @@
+\section{Conclusion}
+
+This paper establishes a single result: for objectives of the form $L = \log \sum_j \exp(-d_j)$, the gradient with respect to each distance is the negative responsibility of the corresponding component. The identity $\partial L / \partial d_j = -r_j$ is exact, requiring no approximations beyond differentiability.
+
+The implication is immediate. Gradient descent on distance-based log-sum-exp objectives performs expectation-maximization implicitly. Responsibilities are not computed as auxiliary quantities; they are the gradients. The forward pass is the E-step; the backward pass is the M-step. No explicit inference algorithm is required because inference is already embedded in optimization.
+
+This mechanism unifies phenomena that have been treated as distinct. Unsupervised mixture learning, attention in transformers, and cross-entropy classification are three regimes of the same underlying process---differing in what is observed and what is latent, but governed by identical dynamics. The Bayesian structure recently observed in trained transformers is not an emergent mystery; it is a necessary consequence of the objectives used to train them.
+
+Optimization and inference are the same process viewed at different scales.

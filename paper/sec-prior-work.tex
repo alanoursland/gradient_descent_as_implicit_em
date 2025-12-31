@@ -1,0 +1,33 @@
+\section{Relation to Prior Work}
+
+The result derived here does not stand alone. It depends on prior work for its geometric foundation and gains significance from recent empirical findings that it explains. This section positions the contribution relative to three bodies of work: the distance-based interpretation of neural representations, recent evidence of Bayesian structure in transformers, and classical results on energy-based learning and expectation-maximization.
+
+\subsection{Prior Work on Distance-Based Representations}
+
+In prior work \citep{oursland2024interpreting}, we established the geometric interpretation on which this paper depends. That work shows that standard neural network layers---affine transformations followed by ReLU or absolute value activations---compute quantities that behave as distances from learned prototypes. Outputs are deviations, not confidences; they measure how far an input lies from a reference structure defined by the weights. This interpretation is not imposed but derived from the mathematics of the operations involved.
+
+The present work takes this geometric substrate as given and asks a different question: what happens when distance-based representations are optimized under standard objectives? Our prior work is silent on learning dynamics. It characterizes what neural networks represent, not how they learn. The contribution here is to show that log-sum-exp objectives over distances produce responsibility-weighted gradients, and that this induces implicit EM.
+
+The two results are complementary and together form a complete picture. The first says: neural networks compute distances. The second says: optimizing distances with LSE objectives performs inference. Neither subsumes the other. Without the distance interpretation, the identification of gradients with responsibilities is a formal curiosity. Without the gradient identity, the distance interpretation describes static representations with no account of how they emerge. The geometric substrate enables the learning dynamics; the learning dynamics justify attention to the geometric substrate.
+
+\subsection{Aggarwal et al.\ (2025a,b)}
+
+\citet{aggarwal2025geometry} provide striking empirical evidence that transformers perform exact Bayesian inference. In controlled settings where the true posterior is analytically known, small transformers reproduce Bayesian posteriors with sub-bit precision. This is not approximate or Bayesian-like behavior; it is exact agreement, verified position by position against closed-form solutions. The result establishes that transformers \emph{can} implement Bayesian computation---but does not explain why they \emph{must}.
+
+\citet{aggarwal2025gradient} move from statics to dynamics, analyzing the gradients of attention under cross-entropy training. They derive that value vectors receive responsibility-weighted updates and that attention scores adjust according to an advantage-like rule. They observe a two-timescale structure: attention patterns stabilize early while values continue to refine---mirroring the E-step and M-step of classical EM. The analysis is thorough and the EM parallel is explicit.
+
+Yet the authors are careful to characterize this connection as ``structural rather than variational.'' They observe that attention \emph{behaves like} EM but stop short of claiming that EM is a necessary consequence of the objective. The resemblance is documented; the derivation is not attempted.
+
+The present work provides that derivation. Under the distance-based interpretation of neural outputs, the gradient identity $\partial L / \partial d_j = -r_j$ is not a structural analogy but an algebraic fact. The EM-like dynamics Aggarwal et al.\ observe are not emergent properties that happen to appear in transformers---they are forced by the geometry of the loss function. Any model that computes distances and optimizes a log-sum-exp objective will exhibit the same dynamics, whether or not it resembles a transformer.
+
+The relationship between the two contributions is observation to explanation. Aggarwal et al.\ document the phenomenon with precision and rigor. We provide the theoretical mechanism that makes the phenomenon inevitable.
+
+\subsection{Other Connections}
+
+The energy-based learning framework of \citet{lecun2006tutorial} provides essential conceptual scaffolding. That work reframes learning as the minimization of an energy function, with probabilities derived via exponentiation and normalization. The log-sum-exp objective analyzed here is a special case of the ``free energy'' formulation in energy-based models. Our contribution is to show that the gradient of this free energy with respect to component energies is exactly the posterior responsibility---a connection implicit in the framework but not, to our knowledge, previously stated as a formal identity.
+
+\citet{dempster1977maximum} introduced expectation-maximization as an algorithm for maximum likelihood estimation with latent variables. The E-step and M-step are defined as discrete, alternating operations. The present work shows that for distance-based objectives, these steps collapse into gradient descent: the forward pass computes responsibilities implicitly, and backpropagation applies them. This does not contradict the classical formulation but reveals it as a special case of a more general phenomenon. EM is not merely an algorithm one can choose to apply; it is a property of certain objective geometries under gradient-based optimization.
+
+\citet{vaswani2017attention} introduced the transformer architecture with attention as its core mechanism. The original presentation emphasizes attention as a soft retrieval operation---queries attending to keys to aggregate values. The implicit EM perspective reframes attention as conditional mixture inference, with attention weights as responsibilities and value projections as prototype parameters. This interpretation is consistent with the original formulation but provides a probabilistic semantics that the architectural description lacks.
+
+Mixture of Experts models \citep{jacobs1991adaptive} use explicit gating networks to route inputs to specialized subnetworks. The gating weights are responsibilities by another name. The difference is architectural: in Mixture of Experts, gating is a separate learned function; in standard attention and classification, responsibilities emerge as gradients of the objective without dedicated gating machinery. Implicit EM reveals that the explicit gating of Mixture of Experts is not necessary---any log-sum-exp objective produces responsibility-weighted routing automatically.
