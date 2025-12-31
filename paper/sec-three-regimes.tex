@@ -16,7 +16,7 @@ By Theorem 1, the gradient with respect to each distance is the negative respons
 
 The result is spontaneous specialization. Even with random initialization, components differentiate over training. Each prototype drifts toward a region of input space for which it consistently takes high responsibility, while ceding other regions to competitors. Clustering emerges not because it was specified but because the objective geometry forces responsibility-weighted updates.
 
-This regime corresponds exactly to classical EM on mixture models. The difference is algorithmic, not mathematical: classical EM alternates discrete E-steps and M-steps, while gradient descent performs both continuously. The fixed points---and the path toward them---are governed by the same responsibilities.
+This regime corresponds exactly to classical EM on mixture models. The fixed points---and the path toward them---are governed by the same responsibilities.
 
 \subsection{Conditional Regime: Attention Mechanisms}
 

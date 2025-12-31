@@ -50,7 +50,7 @@ Consider what happens during training. The forward pass computes distances $d_j$
 
 This is exactly the M-step of expectation-maximization. In classical EM, responsibilities are computed in the E-step and then used to weight parameter updates in the M-step. Here, no E-step is required as a separate operation. The forward pass \emph{is} the E-step; the backward pass \emph{is} the M-step. The two are fused into a single gradient computation.
 
-The consequence is that EM is not approximated by gradient descent on LSE objectives. It is not resembled, not analogized, not approached in some limit. It is \emph{performed}. The discrete alternation of classical EM---compute responsibilities, then update parameters, then repeat---collapses into continuous, simultaneous optimization. Every gradient step is a responsibility-weighted update. Every trained network has been doing EM all along.
+The consequence is that gradient descent on LSE objectives is exactly EM. It is not an approximation of EM. The discrete alternation of classical EM---compute responsibilities, then update parameters, then repeat---collapses into continuous, simultaneous optimization. Every gradient step is a responsibility-weighted update. Every trained network has been doing EM all along.
 
 Throughout this paper, ``implicit EM'' refers to the emergence of responsibility-weighted parameter updates under gradient descent on log-sum-exp objectives---not to coordinate-ascent EM or guarantees about convergence.
 
@@ -64,4 +64,4 @@ The result depends on three structural conditions. When all three are satisfied,
 
 \textbf{Gradient-based optimization.} The parameters must be updated via gradients of the objective. The identity $\partial L / \partial d_j = -r_j$ is a fact about the loss surface; it becomes a fact about learning dynamics only when gradient descent (or a variant) is used. Other optimization methods---evolutionary strategies, random search, discrete updates---would not automatically inherit the responsibility-weighted structure.
 
-When these conditions hold, there is no additional design choice that enables or disables EM-like behavior. It is a consequence of the objective geometry. Any architecture that computes distances, normalizes via exponentiation, and trains with gradients will exhibit implicit EM. The question is not whether such a system performs expectation-maximization, but whether we recognize that it does.
+When these conditions hold, there is no additional design choice that enables or disables EM-like behavior. It is a consequence of the objective geometry. Any architecture that computes distances, normalizes via exponentiation, and trains with gradients will exhibit implicit EM.
