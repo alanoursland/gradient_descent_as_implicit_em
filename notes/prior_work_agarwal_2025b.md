@@ -17,6 +17,35 @@ The two works are closely aligned but operate at **different explanatory depths*
 
 ---
 
+## v5 Updates (checked 2026-07-03)
+
+Both trilogy papers have been revised through **v5 (May 2026)**; our original reading was
+of v1. Material changes:
+
+1. **"Clarification on 'Bayesian inference'"** (added to both papers): their Bayesian
+   inference is the *in-context posterior predictive over latent task variables* —
+   computed at **inference time by frozen weights** — not a posterior over network
+   weights, and not a claim that training is Bayesian.
+2. **New §5.5 "Bayesian vs. EM Perspective"** (this paper): "EM is an optimization
+   procedure: it produces a point estimate θ* ... **Our analysis therefore lives at the
+   EM/SGD level.** However, our companion work shows that the point-estimate parameters
+   learned in this way support *Bayesian computation in representation space* ... The
+   present paper explains why cross-entropy and gradient descent naturally create these
+   structures."
+3. **Scoping implication for us:** their Paper I claims are inference-time; their Paper II
+   analysis is training-time — the same level as our paper. Our paper connects **directly
+   to Paper II** (same gradient identities, same EM/SGD level) and to Paper I **only via
+   the endpoint theorem** (CE optimum = posterior predictive). Our identity does NOT
+   explain in-context belief updating, and the paper now says so explicitly
+   (sec-limits, sec-introduction, sec-prior-work, abstract — 2026-07 revision).
+4. **The series is now a trilogy**: Paper III is *Geometric Scaling of Bayesian Inference
+   in LLMs* (arXiv 2512.23752) — the value-manifold geometry persists in production models
+   (Pythia, Phi-2, Llama-3, Mistral). Cited as `aggarwal2025scaling`.
+5. As of v5, they do **not** cite our arXiv paper (2512.24780, submitted 2025-12-31),
+   despite having seen the draft. Worth tracking for priority purposes.
+
+---
+
 ## Summary of Agarwal et al. (2025b)
 
 Agarwal et al. analyze **how gradients flow through attention layers trained with cross-entropy**.

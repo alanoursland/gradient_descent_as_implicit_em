@@ -14,6 +14,15 @@ The goal is to:
 
 The two works are strongly aligned but operate at **different explanatory levels**.
 
+**v5 update (2026-07-03):** this paper (now at v5, May 2026) carries an explicit
+"Clarification on 'Bayesian inference'": what it demonstrates is the **in-context posterior
+predictive over latent task variables, computed at inference time by frozen weights**. It is
+Paper I of a trilogy (Paper II = gradient dynamics, training time; Paper III = *Geometric
+Scaling of Bayesian Inference in LLMs*, arXiv 2512.23752, production models). Our paper's
+claims are training-time and therefore do **not** explain this paper's central phenomenon;
+the connection runs through the endpoint theorem (CE optimum = posterior predictive) and
+through Paper II. See `prior_work_agarwal_2025b.md` §"v5 Updates" for details.
+
 ---
 
 ## Summary of Agarwal et al. (2025a)
