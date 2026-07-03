@@ -22,16 +22,21 @@ The two works are closely aligned but operate at **different explanatory depths*
 Both trilogy papers have been revised through **v5 (May 2026)**; our original reading was
 of v1. Material changes:
 
-1. **"Clarification on 'Bayesian inference'"** (added to both papers): their Bayesian
-   inference is the *in-context posterior predictive over latent task variables* —
-   computed at **inference time by frozen weights** — not a posterior over network
-   weights, and not a claim that training is Bayesian.
-2. **New §5.5 "Bayesian vs. EM Perspective"** (this paper): "EM is an optimization
-   procedure: it produces a point estimate θ* ... **Our analysis therefore lives at the
-   EM/SGD level.** However, our companion work shows that the point-estimate parameters
-   learned in this way support *Bayesian computation in representation space* ... The
-   present paper explains why cross-entropy and gradient descent naturally create these
-   structures."
+1. **"Clarification on 'Bayesian inference'"** — their Bayesian inference is the
+   *in-context posterior predictive over latent task variables* — computed at
+   **inference time by frozen weights** — not a posterior over network weights, and not
+   a claim that training is Bayesian. **Version timeline verified:** absent in v1
+   (Dec 27, 2025); present in v2 (Jan 7, 2026) — i.e., added in the revision immediately
+   after our draft was shared / our arXiv posting (2512.24780, Dec 31, 2025).
+2. **§5.5 "Bayesian vs. EM Perspective" was already in v1** (not a later addition —
+   an earlier version of this note got that wrong): "EM is an optimization procedure:
+   it produces a point estimate θ* ... **Our analysis therefore lives at the EM/SGD
+   level.** However, our companion work shows that the point-estimate parameters learned
+   in this way support *Bayesian computation in representation space* ... The present
+   paper explains why cross-entropy and gradient descent naturally create these
+   structures." Likewise, the gradient laws (their Eqs. 23 and 33) and the "structural
+   rather than variational" caveat (§5.2) are **all present in v1**, which predates our
+   draft. Priority on the attention gradient mechanics is unambiguously theirs.
 3. **Scoping implication for us:** their Paper I claims are inference-time; their Paper II
    analysis is training-time — the same level as our paper. Our paper connects **directly
    to Paper II** (same gradient identities, same EM/SGD level) and to Paper I **only via
