@@ -42,15 +42,27 @@ The paper answers:
 
 ## What Agarwal et al. Do *Not* Establish
 
-Despite the EM analogy, Agarwal et al. explicitly do **not**:
+**Correction (2026-07, after reading the actual paper):** an earlier version of this note
+said their "derivation is not attempted" and their framing is "not objective-derived."
+That was wrong. They **do** derive the gradient laws from cross-entropy — the advantage
+routing law \( \partial L/\partial s_{ij} = \alpha_{ij}(b_{ij} - \mathbb{E}_{\alpha_i}[b]) \)
+and the responsibility-weighted value update \( \Delta v_j = -\eta \sum_i \alpha_{ij} u_i \)
+are boxed core results of their paper. The mechanics are theirs and exact.
 
-- derive attention dynamics from a likelihood or density model
-- claim that EM behavior is a necessary consequence of the objective
-- generalize beyond attention mechanisms
-- connect gradient behavior to distance-based objectives
-- show that responsibilities are gradients of a log-likelihood
+What they decline is the **probabilistic interpretation**:
 
-Their EM framing is **structural and descriptive**, not variational or objective-derived.
+- they do not interpret the dynamics via a likelihood or density model over inputs — in
+  their words (§5.2), values move to explain the error geometry "rather than to maximize a
+  likelihood over inputs. The analogy is structural rather than variational"
+- they present the EM connection as a "mechanistic correspondence," "not as a literal
+  optimization of an explicit latent-variable likelihood"
+- they do not generalize beyond attention mechanisms
+- they do not connect gradient behavior to distance-based objectives
+- they do not identify responsibilities as posteriors of an implicit mixture
+
+The quote "structural rather than variational" appears specifically in the context of
+value updates being driven by the backpropagated error \( u_i \) rather than by observed
+data. **Cite it with that context** — it is a scoped caveat, not a global disclaimer.
 
 ---
 
@@ -109,13 +121,22 @@ Agarwal et al. describe attention learning as *EM-like*:
 - E-like phase: attention weights settle
 - M-like phase: values update
 
-The current work strengthens this:
-- EM is not merely an analogy
-- responsibilities arise from the objective
-- M-step-style updates are unavoidable
-- EM collapses into gradient descent
+and are explicit that for attention the correspondence is structural (values chase error
+geometry, not likelihood).
 
-This is the central distinction.
+The current work **delimits rather than overturns** their caveat:
+- **at the loss level** (mixture likelihood, output-layer cross-entropy) the EM
+  correspondence is an *identity* — Fisher's identity; responsibilities are posteriors of
+  an implicit mixture, and the variational reading is exact
+- **inside the network** (attention) their structural caveat is correct, and our
+  internal-softmax analysis (`internal_softmax_gradient.md`) gives it precise form:
+  competition is over downstream usefulness, not likelihood
+- their 2025a population-optimum theorem is the endpoint statement of the loss-level case;
+  the responsibility-gradient identity is its per-step counterpart
+
+This is the central distinction: **where the LSE sits determines whether EM is variational
+(loss) or structural (interior).** We agree with their caveat where it applies and supply
+the probabilistic status where it does not.
 
 ---
 
@@ -165,9 +186,13 @@ This makes the relationship explicit and non-competitive.
 
 ## Summary
 
-- Agarwal et al. (2025b): **How gradients behave**
-- Current work: **Why gradients have that form**
-- Shared observation: EM-like dynamics
-- Distinct contribution: descriptive vs explanatory
+- Agarwal et al. (2025b): **exact gradient mechanics of attention under CE** (derived, not
+  merely observed), with a scoped caveat that the EM reading is structural for attention
+- Current work: **the probabilistic status of those gradients** — variational at the loss
+  level (Fisher's identity, implicit mixture posteriors), structural in the interior
+  (their caveat, given precise form)
+- Distinct contribution: mechanics vs semantics, and the delimitation between them
 
-The current work should be read as an **objective-theoretic foundation** for the gradient phenomena documented by Agarwal et al., not as a reanalysis of their results.
+The current work should be read as supplying the **probabilistic semantics and its limits**
+for the gradient phenomena Agarwal et al. derive and document, not as a reanalysis of their
+results — and never as claiming they "did not attempt the derivation." They did.

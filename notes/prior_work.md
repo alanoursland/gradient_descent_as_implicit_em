@@ -26,7 +26,7 @@ This document enumerates the key references that form the intellectual lineage o
 
 **Agarwal, N., et al. (2025a). *The Bayesian Geometry of Transformer Attention*.**
 
-> This work provides the empirical motivation for the theory. Agarwal et al. demonstrate that trained transformer attention heads exhibit low-dimensional Bayesian belief manifolds and that residual streams track posterior uncertainty. The current paper explains *why* this geometry emerges: it is not an accidental property of the Transformer architecture, but a necessary consequence of optimizing distance-based log-sum-exp objectives (like Attention Softmax).
+> This work provides the empirical motivation for the theory. Agarwal et al. demonstrate that value representations in trained transformers unfold into low-dimensional manifolds parameterized by posterior entropy, with the residual stream serving as the belief substrate and attention providing content-addressable routing; posterior entropy is matched to 10^-3–10^-4 bits in settings where the true posterior is known. They also prove that the population optimum of cross-entropy is the Bayes posterior. The current paper supplies the per-step counterpart of that endpoint theorem: the gradients themselves are posterior responsibilities of an implicit mixture whenever the LSE is the loss.
 
 **Agarwal, N., et al. (2025b). *Gradient Dynamics of Attention: How Cross-Entropy Sculpts Bayesian Manifolds*.**
 
