@@ -153,9 +153,11 @@ L = d_1 + \log(\exp(-d_1) + \exp(-d_2))
 
 Then:
 \[
-\frac{\partial L}{\partial d_1} = r_1 - 1, \quad
-\frac{\partial L}{\partial d_2} = r_2
+\frac{\partial L}{\partial d_1} = 1 - r_1, \quad
+\frac{\partial L}{\partial d_2} = -r_2
 \]
+
+(Note the signs: these are gradients with respect to *distances*, so they are the negatives of the familiar logit-space gradients \( p_j - \mathbb{1}[j=y] \). A descent step pulls the correct prototype closer with strength \( 1 - r_1 \) and pushes the incorrect one away with strength \( r_2 \). Verified numerically in `experiments/verify_identities.py`.)
 
 Responsibilities remain present but are **constrained by supervision**.
 

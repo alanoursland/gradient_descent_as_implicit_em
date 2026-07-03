@@ -37,6 +37,12 @@ This quantity is exactly the posterior responsibility of component \( j \).
 
 This claim is fully derived and requires no auxiliary assumptions beyond differentiability.
 
+**Positioning (2026-07 revision):** the identity itself is a specialization of **Fisher's
+identity** and is classical in the EM literature (see `prior_work_classical_em_gd.md`).
+The claim the paper owns is not the identity but its *address*: standard neural objectives
+instantiate it, unmodified, over distance-based representations. The paper must never
+present the identity as newly derived.
+
 ---
 
 ## Secondary Claims (Derived Consequences)

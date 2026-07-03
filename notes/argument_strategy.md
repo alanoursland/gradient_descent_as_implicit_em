@@ -85,7 +85,7 @@ Since this is a theory-only paper, we must preemptively disarm specific critique
 
 * **Defense:** Frame the paper as **Explanatory**, not Prescriptive.
 * *Counter-argument:* We are not proposing a new algorithm to beat a benchmark. We are explaining *why* current algorithms work.
-* *Leverage:* Cite **Aggarwal et al. (2025a/b)**. They provide the empirical "what" (Bayesian behavior exists); we provide the theoretical "why" (it is forced by the objective).
+* *Leverage:* Cite **Agarwal et al. (2025a/b)**. They provide the empirical "what" (Bayesian behavior exists); we provide the theoretical "why" (it is forced by the objective).
 
 
 
