@@ -1,10 +1,10 @@
-# Prior Work: Aggarwal et al. (2025a) — The Bayesian Geometry of Transformer Attention
+# Prior Work: Agarwal et al. (2025a) — The Bayesian Geometry of Transformer Attention
 
 ## Purpose of This Document
 
 This note clarifies how the current work (*implicit EM via gradients*) relates to:
 
-> **The Bayesian Geometry of Transformer Attention** (Aggarwal et al., 2025)
+> **The Bayesian Geometry of Transformer Attention** (Agarwal et al., 2025)
 
 The goal is to:
 - identify genuine overlap vs complementarity
@@ -16,9 +16,9 @@ The two works are strongly aligned but operate at **different explanatory levels
 
 ---
 
-## Summary of Aggarwal et al. (2025a)
+## Summary of Agarwal et al. (2025a)
 
-Aggarwal et al. investigate **what trained transformer attention layers represent**.
+Agarwal et al. investigate **what trained transformer attention layers represent**.
 
 Core findings:
 - Attention heads encode low-dimensional Bayesian belief manifolds
@@ -37,9 +37,9 @@ The paper answers:
 
 ---
 
-## What Aggarwal et al. Do *Not* Derive
+## What Agarwal et al. Do *Not* Derive
 
-Critically, Aggarwal et al. do **not**:
+Critically, Agarwal et al. do **not**:
 
 - derive attention behavior from the training objective
 - explain why cross-entropy induces Bayesian geometry
@@ -53,7 +53,7 @@ They explicitly treat Bayesian behavior as an *emergent property* of training, n
 
 ## Scope of the Current Work
 
-The current work addresses the **objective-level cause** of the phenomena observed by Aggarwal et al.
+The current work addresses the **objective-level cause** of the phenomena observed by Agarwal et al.
 
 Core focus:
 - distance / energy-based objectives
@@ -71,7 +71,7 @@ Key question answered:
 
 The relationship can be summarized as:
 
-| Aspect | Aggarwal et al. (2025a) | Current Work |
+| Aspect | Agarwal et al. (2025a) | Current Work |
 |------|-------------------------|--------------|
 | Question | What geometry do transformers exhibit? | What objective forces this geometry? |
 | Method | Empirical probing & analysis | Analytical derivation |
@@ -79,14 +79,14 @@ The relationship can be summarized as:
 | Focus | Belief manifolds | Responsibilities & gradients |
 | Training loss | Assumed (cross-entropy) | Analyzed directly |
 
-Aggarwal et al. describe **the result**.  
+Agarwal et al. describe **the result**.  
 The current work explains **the cause**.
 
 ---
 
 ## Responsibilities vs Belief Geometry
 
-Aggarwal et al. show that:
+Agarwal et al. show that:
 - internal representations align with posterior distributions
 - belief states evolve smoothly during inference
 
@@ -101,7 +101,7 @@ Thus, belief geometry is not incidental—it is **structurally induced**.
 
 ## Attention as a Special Case
 
-Aggarwal et al. analyze attention mechanisms specifically.
+Agarwal et al. analyze attention mechanisms specifically.
 
 The current work generalizes:
 - attention scores as negative energies or distances
@@ -115,7 +115,7 @@ This reframes attention not as a special Bayesian mechanism, but as:
 
 ## Complementarity, Not Redundancy
 
-Aggarwal et al.:
+Agarwal et al.:
 - demonstrate Bayesian structure empirically
 - validate that inference-like representations exist
 
@@ -128,7 +128,7 @@ Neither paper subsumes the other.
 
 ---
 
-## Why This Work Adds to Aggarwal et al.
+## Why This Work Adds to Agarwal et al.
 
 The present work adds:
 
@@ -152,7 +152,7 @@ The present work adds:
 
 A clean way to relate the two works:
 
-> *Aggarwal et al. (2025a) empirically demonstrate that transformer attention layers represent Bayesian belief geometry. The present work provides an objective-level explanation for this phenomenon, showing that distance-based log-sum-exp objectives necessarily induce responsibility-weighted, EM-like learning dynamics under gradient descent.*
+> *Agarwal et al. (2025a) empirically demonstrate that transformer attention layers represent Bayesian belief geometry. The present work provides an objective-level explanation for this phenomenon, showing that distance-based log-sum-exp objectives necessarily induce responsibility-weighted, EM-like learning dynamics under gradient descent.*
 
 This positions the papers as complementary layers of explanation.
 
@@ -160,9 +160,9 @@ This positions the papers as complementary layers of explanation.
 
 ## Summary
 
-- Aggarwal et al. (2025a): **What** Bayesian structure appears in transformers
+- Agarwal et al. (2025a): **What** Bayesian structure appears in transformers
 - Current work: **Why** such structure is unavoidable given the objective
 - Shared worldview: geometry-first, inference-as-learning
 - Distinct contributions: observation vs derivation
 
-The current work should be read as an **explanatory foundation** for the phenomena documented by Aggarwal et al., not as a reinterpretation or extension of their empirical results.
+The current work should be read as an **explanatory foundation** for the phenomena documented by Agarwal et al., not as a reinterpretation or extension of their empirical results.

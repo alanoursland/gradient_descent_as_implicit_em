@@ -1,11 +1,11 @@
-# Prior Work: Aggarwal et al. (2025b) — Gradient Dynamics of Attention
+# Prior Work: Agarwal et al. (2025b) — Gradient Dynamics of Attention
 
 ## Purpose of This Document
 
 This note clarifies how the current work (*implicit EM via gradients*) relates to:
 
 > **Gradient Dynamics of Attention: How Cross-Entropy Sculpts Bayesian Manifolds**  
-> Aggarwal et al., 2025
+> Agarwal et al., 2025
 
 The goal is to:
 - identify genuine overlap vs complementarity
@@ -17,9 +17,9 @@ The two works are closely aligned but operate at **different explanatory depths*
 
 ---
 
-## Summary of Aggarwal et al. (2025b)
+## Summary of Agarwal et al. (2025b)
 
-Aggarwal et al. analyze **how gradients flow through attention layers trained with cross-entropy**.
+Agarwal et al. analyze **how gradients flow through attention layers trained with cross-entropy**.
 
 Core contributions:
 - Derivation of first-order gradients for attention scores and values
@@ -40,9 +40,9 @@ The paper answers:
 
 ---
 
-## What Aggarwal et al. Do *Not* Establish
+## What Agarwal et al. Do *Not* Establish
 
-Despite the EM analogy, Aggarwal et al. explicitly do **not**:
+Despite the EM analogy, Agarwal et al. explicitly do **not**:
 
 - derive attention dynamics from a likelihood or density model
 - claim that EM behavior is a necessary consequence of the objective
@@ -75,7 +75,7 @@ This question is orthogonal to architectural details.
 
 The relationship can be summarized as:
 
-| Aspect | Aggarwal et al. (2025b) | Current Work |
+| Aspect | Agarwal et al. (2025b) | Current Work |
 |------|-------------------------|--------------|
 | Primary question | How do gradients behave in attention? | Why do gradients encode responsibilities? |
 | Level | Mechanism-level | Objective-level |
@@ -83,14 +83,14 @@ The relationship can be summarized as:
 | Scope | Attention-specific | Architecture-agnostic |
 | EM framing | Analogy | Necessary consequence |
 
-Aggarwal et al. show **what happens**.  
+Agarwal et al. show **what happens**.  
 The current work explains **why it must happen**.
 
 ---
 
 ## Responsibilities vs Gradient Modulation
 
-Aggarwal et al. show that attention gradients take the form:
+Agarwal et al. show that attention gradients take the form:
 - attention weight × advantage-like error term
 - responsibility-weighted updates to values
 
@@ -99,13 +99,13 @@ The current work shows that:
 - these quantities appear directly as gradients
 - no additional structure is required
 
-Thus, the gradient forms derived by Aggarwal et al. are a **special case** of a more general phenomenon.
+Thus, the gradient forms derived by Agarwal et al. are a **special case** of a more general phenomenon.
 
 ---
 
 ## EM Analogy vs EM Equivalence
 
-Aggarwal et al. describe attention learning as *EM-like*:
+Agarwal et al. describe attention learning as *EM-like*:
 - E-like phase: attention weights settle
 - M-like phase: values update
 
@@ -139,7 +139,7 @@ The present work contributes:
 
 ## Complementarity
 
-Aggarwal et al. (2025b):
+Agarwal et al. (2025b):
 - precisely characterize gradient dynamics
 - validate EM-like behavior empirically and analytically
 - focus on attention as a case study
@@ -157,7 +157,7 @@ The two works reinforce each other.
 
 A clean way to relate the papers:
 
-> *Aggarwal et al. (2025b) analyze the gradient dynamics of attention layers trained with cross-entropy, identifying EM-like specialization behavior. The present work provides an objective-level explanation for these dynamics, showing that responsibilities emerge directly as gradients of distance-based log-sum-exp objectives.*
+> *Agarwal et al. (2025b) analyze the gradient dynamics of attention layers trained with cross-entropy, identifying EM-like specialization behavior. The present work provides an objective-level explanation for these dynamics, showing that responsibilities emerge directly as gradients of distance-based log-sum-exp objectives.*
 
 This makes the relationship explicit and non-competitive.
 
@@ -165,9 +165,9 @@ This makes the relationship explicit and non-competitive.
 
 ## Summary
 
-- Aggarwal et al. (2025b): **How gradients behave**
+- Agarwal et al. (2025b): **How gradients behave**
 - Current work: **Why gradients have that form**
 - Shared observation: EM-like dynamics
 - Distinct contribution: descriptive vs explanatory
 
-The current work should be read as an **objective-theoretic foundation** for the gradient phenomena documented by Aggarwal et al., not as a reanalysis of their results.
+The current work should be read as an **objective-theoretic foundation** for the gradient phenomena documented by Agarwal et al., not as a reanalysis of their results.

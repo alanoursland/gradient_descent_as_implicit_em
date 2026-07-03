@@ -24,17 +24,19 @@ This document enumerates the key references that form the intellectual lineage o
 
 ## II. Empirical Context (The "What" and "How")
 
-**Aggarwal, S., et al. (2025a). *The Bayesian Geometry of Transformer Attention*.**
+**Agarwal, N., et al. (2025a). *The Bayesian Geometry of Transformer Attention*.**
 
-> This work provides the empirical motivation for the theory. Aggarwal et al. demonstrate that trained transformer attention heads exhibit low-dimensional Bayesian belief manifolds and that residual streams track posterior uncertainty. The current paper explains *why* this geometry emerges: it is not an accidental property of the Transformer architecture, but a necessary consequence of optimizing distance-based log-sum-exp objectives (like Attention Softmax).
+> This work provides the empirical motivation for the theory. Agarwal et al. demonstrate that trained transformer attention heads exhibit low-dimensional Bayesian belief manifolds and that residual streams track posterior uncertainty. The current paper explains *why* this geometry emerges: it is not an accidental property of the Transformer architecture, but a necessary consequence of optimizing distance-based log-sum-exp objectives (like Attention Softmax).
 
-**Aggarwal, S., et al. (2025b). *Gradient Dynamics of Attention: How Cross-Entropy Sculpts Bayesian Manifolds*.**
+**Agarwal, N., et al. (2025b). *Gradient Dynamics of Attention: How Cross-Entropy Sculpts Bayesian Manifolds*.**
 
-> While Aggarwal (2025a) focuses on static representations, this companion paper analyzes the *dynamics* of training, observing that attention weights settle early (E-step-like behavior) while value vectors refine slowly (M-step-like behavior). The current paper provides the objective-level derivation for this phenomenon, showing that the "two-timescale" dynamic is inherent to the gradient structure , where responsibilities () gate the magnitude of updates to the prototypes.
+> While Agarwal (2025a) focuses on static representations, this companion paper analyzes the *dynamics* of training, observing that attention weights settle early (E-step-like behavior) while value vectors refine slowly (M-step-like behavior). The current paper provides the objective-level derivation for this phenomenon, showing that the "two-timescale" dynamic is inherent to the gradient structure , where responsibilities () gate the magnitude of updates to the prototypes.
 
 ---
 
 ## III. Theoretical Precursors (Mechanisms & Algorithms)
+
+> **⚠ See `prior_work_classical_em_gd.md` (added 2026-07).** The classical statistics literature already contains the core identity (Fisher's identity) and the precise GD–EM relationship (Xu & Jordan 1996: EM = preconditioned gradient step; Neal & Hinton 1998: E/M = coordinate ascent on one objective; Salakhutdinov et al. 2003: expected-gradient optimizers). The paper must cite this line and position its contribution as framing + regimes + substrate, not the identity itself.
 
 **Dempster, A. P., et al. (1977). *Maximum Likelihood from Incomplete Data via the EM Algorithm*.**
 
@@ -65,6 +67,6 @@ This document enumerates the key references that form the intellectual lineage o
 | **Oursland (2024)** | **Foundation** | Output = Distance (not Confidence) |
 | **LeCun (2006)** | **Foundation** | Loss = Free Energy |
 | **Implicit EM (Ours)** | **Core Result** | **Gradient = Responsibility** |
-| **Aggarwal (2025a/b)** | **Validation** | Empirical observation of Bayesian geometry |
+| **Agarwal (2025a/b)** | **Validation** | Empirical observation of Bayesian geometry |
 | **Dempster (1977)** | **Contrast** | Explicit, Discrete EM |
 | **Vaswani (2017)** | **Application** | Attention as Conditional Mixture Modeling |
