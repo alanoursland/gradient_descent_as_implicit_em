@@ -72,6 +72,21 @@ faithfully whenever this record is used.
 - The author sat on the result for ~2 months ("not enough for a paper") until the trilogy
   provided the empirical hook.
 
+### Located artifact: the 2025-11-24 validation conversation
+
+The Gemini conversation publicly linked in the 2025-12-30 tweet has been recovered and
+transcribed to `notes/conversations/2025-11-24_gemini_lse_em_validation.md`. Its share
+page displays provider-side metadata: **created November 24, 2025** (33 days before
+trilogy v1), **published December 30, 2025**. It contains the paper's Theorem 1, the
+"responsibilities ARE the gradients" slogan, "EM collapses into gradient descent," the
+supervised/unsupervised regime contrast, the correntropy route, and the log-determinant
+volume analysis — i.e., the paper minus attention, one month early. Caveat recorded in
+the transcript file: the core derivation was *pasted into* that conversation from an
+earlier, not-yet-located chat, so this artifact proves possession by 2025-11-24, not
+first derivation. Because the share link is already public (posted in the announcement
+thread), the transcript is kept in this repository; the earliest-origin conversation, if
+found, stays in the private archive unless deliberately published.
+
 ## What This Record Does and Does Not Establish
 
 - It **does** establish: the substrate program predates the trilogy by over a year, on
