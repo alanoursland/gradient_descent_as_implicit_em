@@ -14,17 +14,34 @@ The goal is to:
 
 The two works are strongly aligned but operate at **different explanatory levels**.
 
+**v5 update (2026-07-03):** this paper (now at v5, May 2026) carries an explicit
+"Clarification on 'Bayesian inference'": what it demonstrates is the **in-context posterior
+predictive over latent task variables, computed at inference time by frozen weights**. It is
+Paper I of a trilogy (Paper II = gradient dynamics, training time; Paper III = *Geometric
+Scaling of Bayesian Inference in LLMs*, arXiv 2512.23752, production models). Our paper's
+claims are training-time and therefore do **not** explain this paper's central phenomenon;
+the connection runs through the endpoint theorem (CE optimum = posterior predictive) and
+through Paper II. See `prior_work_agarwal_2025b.md` §"v5 Updates" for details.
+
 ---
 
 ## Summary of Agarwal et al. (2025a)
 
 Agarwal et al. investigate **what trained transformer attention layers represent**.
 
-Core findings:
-- Attention heads encode low-dimensional Bayesian belief manifolds
-- Residual stream representations correspond to posterior belief states
-- Internal activations track entropy and uncertainty
-- Transformers trained with cross-entropy perform approximate Bayesian inference
+Core findings (corrected 2026-07 after reading the paper):
+- In "Bayesian wind tunnels" (closed-form posteriors, memorization impossible), small
+  transformers match analytic posterior entropy position-by-position to 10^-3–10^-4 bits;
+  capacity-matched MLPs "fail catastrophically" (~618x worse on the bijection task)
+- **Value representations** unfold into low-dimensional manifolds parameterized by
+  posterior entropy (the manifold lives in the values/residual stream, not in the
+  attention weights)
+- Mechanistic division of labor: residual stream = belief substrate, feed-forward
+  networks = numerical posterior update, attention = content-addressable routing
+- NOTE: they frame attention as *routing*, not as responsibilities or soft assignment —
+  responsibility language is ours, not theirs
+- They prove an endpoint theorem: the population optimum of cross-entropy is the Bayes
+  posterior predictive (architecture-agnostic)
 
 Key characteristics:
 - Empirical and mechanistic
@@ -39,15 +56,20 @@ The paper answers:
 
 ## What Agarwal et al. Do *Not* Derive
 
-Critically, Agarwal et al. do **not**:
+Critically, Agarwal et al. (2025a) do **not**:
 
-- derive attention behavior from the training objective
-- explain why cross-entropy induces Bayesian geometry
+- explain the training-dynamics mechanism in this paper (they defer gradient dynamics to
+  the companion paper, 2025b — so "they don't derive it" is only true of 2025a in
+  isolation, and must not be asserted of the pair)
 - connect attention to density estimation or mixture modeling
-- show how responsibilities arise mathematically
-- provide a variational or likelihood-level explanation
+- describe attention weights as responsibilities or soft assignments (their frame is
+  content-addressable routing)
+- provide a variational or likelihood-level interpretation of the intermediate quantities
 
-They explicitly treat Bayesian behavior as an *emergent property* of training, not as a necessary consequence of the objective.
+Their population-optimum theorem *is* an objective-level statement — it explains why the
+optimum is Bayesian. What it does not address (and what they flag as architecture's role)
+is why transformers reach that optimum while MLPs do not, and what the internal quantities
+mean along the way.
 
 ---
 

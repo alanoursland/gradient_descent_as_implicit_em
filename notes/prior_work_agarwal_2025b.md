@@ -17,6 +17,40 @@ The two works are closely aligned but operate at **different explanatory depths*
 
 ---
 
+## v5 Updates (checked 2026-07-03)
+
+Both trilogy papers have been revised through **v5 (May 2026)**; our original reading was
+of v1. Material changes:
+
+1. **"Clarification on 'Bayesian inference'"** — their Bayesian inference is the
+   *in-context posterior predictive over latent task variables* — computed at
+   **inference time by frozen weights** — not a posterior over network weights, and not
+   a claim that training is Bayesian. **Version timeline verified:** absent in v1
+   (Dec 27, 2025); present in v2 (Jan 7, 2026) — i.e., added in the revision immediately
+   after our draft was shared / our arXiv posting (2512.24780, Dec 31, 2025).
+2. **§5.5 "Bayesian vs. EM Perspective" was already in v1** (not a later addition —
+   an earlier version of this note got that wrong): "EM is an optimization procedure:
+   it produces a point estimate θ* ... **Our analysis therefore lives at the EM/SGD
+   level.** However, our companion work shows that the point-estimate parameters learned
+   in this way support *Bayesian computation in representation space* ... The present
+   paper explains why cross-entropy and gradient descent naturally create these
+   structures." Likewise, the gradient laws (their Eqs. 23 and 33) and the "structural
+   rather than variational" caveat (§5.2) are **all present in v1**, which predates our
+   draft. Priority on the attention gradient mechanics is unambiguously theirs.
+3. **Scoping implication for us:** their Paper I claims are inference-time; their Paper II
+   analysis is training-time — the same level as our paper. Our paper connects **directly
+   to Paper II** (same gradient identities, same EM/SGD level) and to Paper I **only via
+   the endpoint theorem** (CE optimum = posterior predictive). Our identity does NOT
+   explain in-context belief updating, and the paper now says so explicitly
+   (sec-limits, sec-introduction, sec-prior-work, abstract — 2026-07 revision).
+4. **The series is now a trilogy**: Paper III is *Geometric Scaling of Bayesian Inference
+   in LLMs* (arXiv 2512.23752) — the value-manifold geometry persists in production models
+   (Pythia, Phi-2, Llama-3, Mistral). Cited as `aggarwal2025scaling`.
+5. As of v5, they do **not** cite our arXiv paper (2512.24780, submitted 2025-12-31),
+   despite having seen the draft. Worth tracking for priority purposes.
+
+---
+
 ## Summary of Agarwal et al. (2025b)
 
 Agarwal et al. analyze **how gradients flow through attention layers trained with cross-entropy**.
@@ -42,15 +76,27 @@ The paper answers:
 
 ## What Agarwal et al. Do *Not* Establish
 
-Despite the EM analogy, Agarwal et al. explicitly do **not**:
+**Correction (2026-07, after reading the actual paper):** an earlier version of this note
+said their "derivation is not attempted" and their framing is "not objective-derived."
+That was wrong. They **do** derive the gradient laws from cross-entropy — the advantage
+routing law \( \partial L/\partial s_{ij} = \alpha_{ij}(b_{ij} - \mathbb{E}_{\alpha_i}[b]) \)
+and the responsibility-weighted value update \( \Delta v_j = -\eta \sum_i \alpha_{ij} u_i \)
+are boxed core results of their paper. The mechanics are theirs and exact.
 
-- derive attention dynamics from a likelihood or density model
-- claim that EM behavior is a necessary consequence of the objective
-- generalize beyond attention mechanisms
-- connect gradient behavior to distance-based objectives
-- show that responsibilities are gradients of a log-likelihood
+What they decline is the **probabilistic interpretation**:
 
-Their EM framing is **structural and descriptive**, not variational or objective-derived.
+- they do not interpret the dynamics via a likelihood or density model over inputs — in
+  their words (§5.2), values move to explain the error geometry "rather than to maximize a
+  likelihood over inputs. The analogy is structural rather than variational"
+- they present the EM connection as a "mechanistic correspondence," "not as a literal
+  optimization of an explicit latent-variable likelihood"
+- they do not generalize beyond attention mechanisms
+- they do not connect gradient behavior to distance-based objectives
+- they do not identify responsibilities as posteriors of an implicit mixture
+
+The quote "structural rather than variational" appears specifically in the context of
+value updates being driven by the backpropagated error \( u_i \) rather than by observed
+data. **Cite it with that context** — it is a scoped caveat, not a global disclaimer.
 
 ---
 
@@ -109,13 +155,22 @@ Agarwal et al. describe attention learning as *EM-like*:
 - E-like phase: attention weights settle
 - M-like phase: values update
 
-The current work strengthens this:
-- EM is not merely an analogy
-- responsibilities arise from the objective
-- M-step-style updates are unavoidable
-- EM collapses into gradient descent
+and are explicit that for attention the correspondence is structural (values chase error
+geometry, not likelihood).
 
-This is the central distinction.
+The current work **delimits rather than overturns** their caveat:
+- **at the loss level** (mixture likelihood, output-layer cross-entropy) the EM
+  correspondence is an *identity* — Fisher's identity; responsibilities are posteriors of
+  an implicit mixture, and the variational reading is exact
+- **inside the network** (attention) their structural caveat is correct, and our
+  internal-softmax analysis (`internal_softmax_gradient.md`) gives it precise form:
+  competition is over downstream usefulness, not likelihood
+- their 2025a population-optimum theorem is the endpoint statement of the loss-level case;
+  the responsibility-gradient identity is its per-step counterpart
+
+This is the central distinction: **where the LSE sits determines whether EM is variational
+(loss) or structural (interior).** We agree with their caveat where it applies and supply
+the probabilistic status where it does not.
 
 ---
 
@@ -165,9 +220,13 @@ This makes the relationship explicit and non-competitive.
 
 ## Summary
 
-- Agarwal et al. (2025b): **How gradients behave**
-- Current work: **Why gradients have that form**
-- Shared observation: EM-like dynamics
-- Distinct contribution: descriptive vs explanatory
+- Agarwal et al. (2025b): **exact gradient mechanics of attention under CE** (derived, not
+  merely observed), with a scoped caveat that the EM reading is structural for attention
+- Current work: **the probabilistic status of those gradients** — variational at the loss
+  level (Fisher's identity, implicit mixture posteriors), structural in the interior
+  (their caveat, given precise form)
+- Distinct contribution: mechanics vs semantics, and the delimitation between them
 
-The current work should be read as an **objective-theoretic foundation** for the gradient phenomena documented by Agarwal et al., not as a reanalysis of their results.
+The current work should be read as supplying the **probabilistic semantics and its limits**
+for the gradient phenomena Agarwal et al. derive and document, not as a reanalysis of their
+results — and never as claiming they "did not attempt the derivation." They did.
