@@ -20,7 +20,9 @@ Within that training-time level, Agarwal et al.\ are careful about the status of
 
 \subsection{This Paper}
 
-This paper supplies that status, and delimits it. We show that for objectives with log-sum-exp structure over distances or energies, the gradient of the loss with respect to each distance is exactly the posterior responsibility of the corresponding component. This is not an approximation, not a resemblance, not an analogy. It is an algebraic identity:
+Before stating what this paper shows, it is worth stating where it came from, because the route explains the framing. The result was not found by interpreting a trained network. It was found by taking the distance-based reading of neural outputs \citep{oursland2024interpreting} as a design constraint and asking the engineering question it forces: \emph{if a network's outputs are distances, what loss function should consume them?} Following the types---exponentiate a distance to get a likelihood, normalize to compare alternatives, take the logarithm to return to the distance domain---leads directly to the log-sum-exp objective, the smooth ``distance to the nearest prototype'' (Section 2.2). Differentiating that objective to understand its training behavior is what exposed the identity below: the mixture model was not imposed on the loss; it was discovered inside it. The paper is organized to preserve that direction of travel: geometry first, probability derived.
+
+This paper supplies the probabilistic status that Agarwal et al.'s caveat leaves open, and delimits it. We show that for objectives with log-sum-exp structure over distances or energies, the gradient of the loss with respect to each distance is exactly the posterior responsibility of the corresponding component. This is not an approximation, not a resemblance, not an analogy. It is an algebraic identity:
 
 \begin{equation}
 \frac{\partial L}{\partial d_j} = -r_j

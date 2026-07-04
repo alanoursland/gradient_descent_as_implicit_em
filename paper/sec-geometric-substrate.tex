@@ -18,7 +18,17 @@ Given a set of distances or energies $\{d_1, d_2, \ldots, d_K\}$ computed for an
 L(x) = \log \sum_{j=1}^{K} \exp(-d_j(x))
 \end{equation}
 
-This is the log-sum-exp (LSE) objective. It has a natural interpretation: if $\exp(-d_j)$ represents the unnormalized likelihood that component $j$ generated the input, then $L$ is the log marginal likelihood---the log-probability that \emph{some} component generated it. Maximizing $L$ encourages the model to place at least one prototype close to each input. Minimizing the negative of $L$ encourages separation.
+This objective admits two readings, and the order in which they are taken matters to this paper.
+
+The first reading is geometric and requires no probability at all. The negative of $L$ is the \emph{soft minimum} of the distances: for $K$ components,
+
+\[
+\min_j d_j - \log K \;\leq\; -L \;\leq\; \min_j d_j
+\]
+
+so minimizing $-L$ minimizes, up to an additive constant, the distance from the input to the \emph{nearest} prototype. The LSE objective is the smooth answer to a design question: given a set of distances, what loss says ``be close to at least one of them''? It is the distance-to-a-set, softened enough to be differentiable. Under this reading, the gradient concentration of Theorem 1---signal flowing to the closest component---is simply the smooth analogue of the fact that a minimum is attained at its argmin. This design-first route is, in fact, how the present framework was arrived at: starting from distance-based representations and asking what objective should consume a distance, one is led to exponentiation (distance to likelihood), normalization (comparison across alternatives), and the logarithm (back to the distance domain)---at which point the mixture model is discovered already inside the loss, not imposed on it.
+
+The second reading is probabilistic: if $\exp(-d_j)$ represents the unnormalized likelihood that component $j$ generated the input, then $L$ is the log marginal likelihood---the log-probability that \emph{some} component generated it. Maximizing $L$ encourages the model to place at least one prototype close to each input. The two readings pick out the same objective; the geometric one explains why it is natural, the probabilistic one explains what its gradients mean.
 
 We adopt the following notation throughout. Let $P_j = \exp(-d_j)$ denote the unnormalized likelihood of component $j$. Let $Z = \sum_k P_k = \sum_k \exp(-d_k)$ denote the partition function. Define the responsibility of component $j$ as:
 
