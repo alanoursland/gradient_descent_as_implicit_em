@@ -1,0 +1,29 @@
+\section{Discussion}
+
+This section reflects on what the implicit EM framework unifies, what it implies for how we understand neural networks, and what questions it leaves open for future work.
+
+\subsection{Unification}
+
+The framework reveals that Gaussian mixture models, attention mechanisms, and cross-entropy classification are not three different methods with superficial similarities. They are one mechanism operating under different constraints. In GMMs, responsibilities are fully latent. In attention, responsibilities are conditioned on queries and recomputed per input. In cross-entropy, responsibilities are partially clamped by supervision. The underlying dynamics---exponentiation, normalization, responsibility-weighted updates---are identical.
+
+This suggests a shift in how we interpret neural network training. Probability is often treated as primitive: we define distributions, derive likelihoods, and optimize. The implicit EM perspective inverts this. Distances are primary. Networks compute geometric quantities---deviations from learned structures---and probabilities arise only after exponentiation and normalization. Geometry precedes probability; inference is a consequence of optimization on geometric objectives.
+
+Loss functions, in this view, are not arbitrary choices tuned for performance. They are geometric priors. Cross-entropy encodes an assumption that inputs should be assigned to discrete categories with full responsibility. Log-sum-exp over distances assumes inputs arise from a mixture of latent causes. Correntropy assumes outliers should be ignored. Each objective induces a different geometry of assignment and a different pattern of gradient flow. Choosing a loss function is choosing a theory of how data relates to structure---whether or not that choice is made consciously.
+
+\subsection{Implications}
+
+For interpretability, the framework offers a direct path from training dynamics to semantic structure. If responsibilities are gradients, then the assignments a network makes are not hidden quantities requiring probes or post-hoc analysis. They are present in the backward pass, computed at every training step. The question ``which component is responsible for this input?'' has an answer in the gradient itself. This does not solve interpretability---understanding \emph{why} a component takes responsibility requires further analysis---but it locates the assignment structure in a quantity that is already computed, not one that must be extracted.
+
+For objective design, the analysis reframes log-sum-exp not as a numerical convenience but as a structural requirement. Softmax is often introduced to avoid overflow or to produce well-behaved gradients. The implicit EM perspective reveals a deeper role: log-sum-exp is what induces competition, competition is what produces responsibilities, and responsibilities are what make learning behave like inference. If inference-like behavior is desired, LSE structure is not optional. If it is not desired---if independent predictions or robust outlier handling are preferred---then LSE should be deliberately avoided. The choice is not about numerical stability; it is about what kind of learning dynamics the objective will produce.
+
+For theory, the framework dissolves a long-standing separation. Optimization and inference are traditionally distinct: one concerns finding parameters that minimize a loss, the other concerns computing posteriors over latent variables. The implicit EM result shows that under the right objectives, these are the same process viewed at different levels. Gradient descent \emph{is} inference when the gradients \emph{are} responsibilities. This is not a claim that all optimization is inference, but that for a well-defined class of objectives, the distinction disappears. The forward pass computes posteriors; the backward pass applies them. Training is inference, performed continuously over the dataset.
+
+\subsection{Open Directions}
+
+Several directions remain open. The absence of volume control in neural objectives---the missing log-determinant---leads to collapse risks that are currently managed by heuristics. A principled approach would either derive implicit volume terms from architectural choices or design objectives that include them explicitly. Understanding when normalization layers substitute for volume control, and when they do not, would connect the implicit EM framework to practical stability concerns.
+
+Supervision in real settings is rarely clean. Labels may be noisy, partial, or uncertain. The constrained regime analysis assumes hard labels that clamp responsibilities exactly; a fuller treatment would model soft or probabilistic supervision as partial constraints on the responsibility structure. This could unify semi-supervised learning, label smoothing, and learning from crowds under the implicit EM framework.
+
+Open-set inference requires escaping the closed-world assumption. Current objectives force every input to be assigned; realistic deployment requires the option to reject. Objectives that support non-assignment---an explicit ``none of the above'' component, or a threshold below which no component takes responsibility---would extend implicit EM to settings where not all inputs belong to known categories.
+
+Finally, diagnostic tools are needed. If trained networks perform implicit EM, it should be possible to measure this: to extract responsibilities from gradients, to track specialization over training, to detect when the mechanism fails or degenerates. Such tools would move the framework from explanatory theory to practical instrument, enabling researchers to verify whether a given model exhibits the dynamics the theory predicts.

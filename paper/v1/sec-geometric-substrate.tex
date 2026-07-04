@@ -1,0 +1,53 @@
+\section{The Geometric Substrate}
+
+The main result of this paper---that responsibilities emerge as gradients---rests on a specific geometric foundation. This section establishes that foundation. We first summarize the interpretation of neural network outputs as distances or energies rather than confidences, importing this result from prior work. We then define the class of log-sum-exp objectives to which our analysis applies. Finally, we briefly recall the structure of classical expectation-maximization, not because our method requires it, but to establish the reference point against which implicit EM will be compared.
+
+\subsection{Distance-Based Representations}
+
+The standard interpretation of neural network outputs treats them as confidences or scores indicating the strength of evidence for a hypothesis. A logit is high when the network ``believes'' in a class; an attention score is high when a query ``matches'' a key. This interpretation, while intuitive, obscures the geometric structure of what neural networks actually compute.
+
+In prior work \citep{oursland2024interpreting}, we established a different interpretation: the outputs of standard neural networks are better understood as distances or energies relative to learned prototypes. A linear layer followed by an absolute value or ReLU activation computes a quantity that behaves as a (possibly signed) deviation from a learned reference---a Mahalanobis distance along a principal direction. Concretely, the Mahalanobis distance of a point $x$ from a Gaussian component with mean $\mu$ and principal direction $v$ scaled by eigenvalue $\lambda$ is $|{\lambda}^{-1/2} v^\top (x - \mu)|$, which has the form $|Wx + b|$ for appropriate $W$ and $b$. Standard ReLU networks compute this via the identity $|z| = \text{relu}(z) + \text{relu}(-z)$, decomposing signed distance into two half-space detectors. Under this view, a low output indicates proximity to a prototype; a high output indicates deviation. Probabilities are not primitive quantities but derived ones, arising only after exponentiation and normalization transform distances into relative likelihoods.
+
+This interpretation is not a modeling choice imposed for convenience. It is a mathematical property of affine transformations composed with piecewise-linear activations. The weights of a linear layer define a basis; the biases define offsets along that basis; the activation measures deviation. What changes is not the computation but the semantics we assign to it. Throughout this paper, we adopt the distance-based interpretation and refer to neural outputs as energies or distances interchangeably. The results that follow---particularly the identification of gradients with responsibilities---depend on this geometric framing.
+
+\subsection{The Log-Sum-Exp Objective}
+
+Given a set of distances or energies $\{d_1, d_2, \ldots, d_K\}$ computed for an input $x$, we consider objectives of the form:
+
+\begin{equation}
+L(x) = \log \sum_{j=1}^{K} \exp(-d_j(x))
+\end{equation}
+
+This is the log-sum-exp (LSE) objective. It has a natural interpretation: if $\exp(-d_j)$ represents the unnormalized likelihood that component $j$ generated the input, then $L$ is the log marginal likelihood---the log-probability that \emph{some} component generated it. Maximizing $L$ encourages the model to place at least one prototype close to each input. Minimizing the negative of $L$ encourages separation.
+
+We adopt the following notation throughout. Let $P_j = \exp(-d_j)$ denote the unnormalized likelihood of component $j$. Let $Z = \sum_k P_k = \sum_k \exp(-d_k)$ denote the partition function. Define the responsibility of component $j$ as:
+
+\begin{equation}
+r_j = \frac{P_j}{Z} = \frac{\exp(-d_j)}{\sum_k \exp(-d_k)}
+\end{equation}
+
+The responsibilities are non-negative and sum to one. They represent the posterior probability that component $j$ is responsible for the input, under a uniform prior over components.
+
+This structure appears throughout deep learning under various names. In cross-entropy classification, the logits $z_j$ act as negative distances ($d_j = -z_j$), and the objective becomes $L = -z_y + \log \sum_k \exp(z_k)$, where $y$ is the label. In attention mechanisms, the scores $s_{ij}$ act as negative distances between query $i$ and key $j$, and softmax normalization produces responsibilities that weight the value vectors. These are not analogies to the LSE objective; they are instances of it.
+
+\subsection{Classical EM}
+
+Expectation-maximization is the classical algorithm for fitting mixture models with latent assignments. It proceeds in two alternating steps.
+
+In the E-step, responsibilities are computed. Given current parameters, each data point is softly assigned to each component based on relative likelihood:
+
+\[
+r_j^{(t)} = \frac{P(x \mid \theta_j)}{\sum_k P(x \mid \theta_k)}
+\]
+
+These responsibilities sum to one and represent the posterior probability that component $j$ generated the observation.
+
+In the M-step, parameters are updated. Each component's parameters are adjusted to better fit the data points assigned to it, weighted by responsibility:
+
+\[
+\theta_j^{(t+1)} = \arg\max_{\theta_j} \sum_i r_{ij}^{(t)} \log P(x_i \mid \theta_j)
+\]
+
+For Gaussian mixtures, this reduces to computing responsibility-weighted means and covariances. The key property is that every data point influences every component, but the influence is gated by how much responsibility that component holds for that point.
+
+Classical EM is discrete and alternating: compute all responsibilities, then update all parameters, then repeat. The E-step and M-step are separate procedures with distinct computational roles. This separation is algorithmic, not fundamental.

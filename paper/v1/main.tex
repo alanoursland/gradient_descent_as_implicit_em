@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+
+% Page geometry
+\usepackage[margin=1in]{geometry}
+
+% Math
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% Typography
+\usepackage{microtype}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% References and links
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{natbib}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+% Title
+\title{Gradient Descent as Implicit EM in Distance-Based Neural Models}
+\author{Alan Oursland}
+\date{December 2025}
+
+\begin{document}
+
+\maketitle
+
+\input{abstract.tex}
+
+\input{sec-introduction.tex}
+
+\input{sec-geometric-substrate.tex}
+
+\input{sec-main-result.tex}
+
+\input{sec-three-regimes.tex}
+
+\input{sec-prior-work.tex}
+
+\input{sec-limits.tex}
+
+\input{sec-discussion.tex}
+
+\input{sec-conclusion.tex}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
