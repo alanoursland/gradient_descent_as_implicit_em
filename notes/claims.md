@@ -47,6 +47,20 @@ present the identity as newly derived.
 
 ## Secondary Claims (Derived Consequences)
 
+**Claim 2a — Volume-Corrected Implicit EM (added 2026-07, paper §3.4)**
+
+For linear-layer distances \( z_j = W_j x + b_j \), the exact Gaussian volume term is
+expressible in network primitives: with \( \Sigma_j^{-1} = W_j^\top W_j \),
+\( |\Sigma_j|^{-1/2} = |\det W_j| \), and the volume-corrected energy
+\( \tilde{e}_j = \tfrac{1}{2}\|z_j\|^2 - \log|\det W_j| \) makes the LSE objective the
+**exact** full-Gaussian mixture log marginal likelihood. Theorem 1 applies verbatim, and
+\( \partial L / \partial W_j = r_j (W_j^{-\top} - z_j x^\top) \) — responsibility-weighted
+full-covariance M-step directions (Fisher's identity at the parameter level). Removes the
+trivial metric-collapse mode; the classical single-point singularity remains (as in
+classical EM). Verified numerically (checks 7–8 in `experiments/verify_identities.py`).
+Provenance: derived in the 2025-11-24 Gemini conversation
+(`notes/conversations/2025-11-24_gemini_lse_em_validation.md`).
+
 **Claim 2 — Implicit EM Dynamics**
 
 Gradient descent on distance-based log-sum-exp objectives implements EM-like learning dynamics implicitly:
