@@ -66,15 +66,17 @@ The gradient of cross-entropy with respect to logits is:
 \frac{\partial L}{\partial z_j} = p_j - \mathbb{1}[j = y]
 \]
 
-Equivalently, in distance form:
+Equivalently, in distance form (\( d_j = -z_j \), which **negates** the gradient):
 
 \[
 \frac{\partial L}{\partial d_j} =
 \begin{cases}
-p_j - 1 & j = y \\
-p_j & j \neq y
+1 - p_y & j = y \\
+-p_j & j \neq y
 \end{cases}
 \]
+
+(An earlier version of this note dropped the sign flip; the identity is verified numerically in `experiments/verify_identities.py`.)
 
 This has a clear interpretation:
 
