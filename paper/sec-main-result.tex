@@ -58,7 +58,7 @@ Throughout this paper, ``implicit EM'' refers to the emergence of responsibility
 
 The result depends on three structural conditions. When all three are satisfied, implicit EM dynamics are not optional---they are forced by the mathematics.
 
-\textbf{Exponentiation.} The distances must be passed through an exponential to form unnormalized likelihoods $P_j = \exp(-d_j)$. This transformation converts additive differences in distance into multiplicative ratios in likelihood. Without exponentiation, the gradient with respect to $d_j$ does not yield a normalized quantity, and responsibilities do not emerge.
+\textbf{Exponentiation.} The distances must be passed through an exponential to form unnormalized likelihoods $P_j = \exp(-d_j)$. This transformation converts additive differences in distance into multiplicative ratios in likelihood. Without exponentiation, the gradient with respect to $d_j$ does not yield a normalized quantity, and responsibilities do not emerge. Under the Mahalanobis reading of Section 2.1, this condition is not an additional assumption: the distance is a negative log-density, and exponentiation merely inverts the logarithm.
 
 \textbf{Normalization.} The likelihoods must be normalized across alternatives, either explicitly through softmax or implicitly through the log-sum-exp structure. Normalization induces competition: increasing the likelihood of one component necessarily decreases the relative likelihood of others. This competition is what makes responsibilities sum to one and what causes gradient signal to be distributed according to relative fit. Without normalization, components operate independently, and there is no assignment structure.
 
