@@ -1,4 +1,5 @@
 \section{Main Result: Responsibilities Are Gradients}
+\label{sec:main-result}
 
 We now state and derive the central result: for log-sum-exp objectives over distances, the gradient with respect to each distance is exactly the negative responsibility of the corresponding component. The identity requires no approximations and holds for any model that computes distances and optimizes an LSE objective via gradient descent. The identity itself is classical: it is Fisher's identity---the gradient of an incomplete-data log-likelihood equals the posterior-expected complete-data gradient \citep{cappe2009online,bishop2006pattern}---specialized to a uniform-prior mixture over exponentiated distances (Section~\ref{sec:fisher}). The contribution of this paper is not the derivative but the recognition of where it applies: standard neural objectives instantiate this structure over distance-based representations without modification, so every gradient step of ordinary training is a responsibility-weighted update.
 
@@ -44,6 +45,7 @@ The consequence is that gradient descent on LSE objectives performs a generalize
 Throughout this paper, ``implicit EM'' refers to the emergence of responsibility-weighted parameter updates under gradient descent on log-sum-exp objectives. The term carries no claim of coordinate-ascent structure or convergence guarantees.
 
 \subsection{Conditions}
+\label{sec:conditions}
 
 The result depends on three structural conditions. When all three are satisfied, implicit EM dynamics follow necessarily.
 
@@ -56,6 +58,7 @@ The result depends on three structural conditions. When all three are satisfied,
 When these conditions hold, no additional design choice enables or disables the behavior: any architecture that computes distances, normalizes via exponentiation, and trains with gradients will exhibit implicit EM.
 
 \subsection{Completing the Gaussian: The Volume Term}
+\label{sec:volume}
 
 The analysis so far treats the distances $d_j$ as given, which corresponds to mixture components of fixed shape. A full Gaussian likelihood carries an additional normalization term, the volume of each component's covariance, and neural objectives that omit it are exposed to metric collapse (Section~\ref{sec:collapse}). For the common case where distances are computed by linear layers, this missing term is itself expressible in network primitives, and Theorem~\ref{thm:main} extends to it verbatim.
 

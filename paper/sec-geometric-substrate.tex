@@ -3,6 +3,7 @@
 The main result of this paper---that responsibilities emerge as gradients---rests on a specific geometric foundation. This section establishes that foundation. We first summarize the interpretation of neural network outputs as distances or energies rather than confidences, importing this result from prior work. We then define the class of log-sum-exp objectives to which our analysis applies. Finally, we recall the structure of classical expectation-maximization, which serves only as the reference point against which implicit EM will be compared.
 
 \subsection{Distance-Based Representations}
+\label{sec:distance}
 
 The standard interpretation of neural network outputs treats them as confidences or scores indicating the strength of evidence for a hypothesis. A logit is high when the network ``believes'' in a class; an attention score is high when a query ``matches'' a key. This interpretation, while intuitive, obscures the geometric structure of the underlying computation.
 
@@ -19,6 +20,7 @@ The Mahalanobis form is what makes the passage to probability canonical rather t
 This interpretation reflects the structure of the computation itself: the weights of a linear layer define a basis, the biases define offsets along that basis, and the activation measures deviation. The computation is unchanged in either reading; what differs is the semantics assigned to it. Throughout this paper, we adopt the distance-based interpretation and refer to neural outputs as energies or distances interchangeably. We emphasize, however, that the main result does not depend on this reading: the gradient identity of Section~\ref{sec:main-result} is purely algebraic and holds for arbitrary energies. The distance interpretation supplies the semantics under which that identity deserves the name inference; it motivates the framework rather than carrying the mathematics.
 
 \subsection{The Log-Sum-Exp Objective}
+\label{sec:lse}
 
 Given a set of distances or energies $\{d_1, d_2, \ldots, d_K\}$ computed for an input $x$, we consider objectives of the form
 
@@ -46,7 +48,7 @@ r_j = \frac{P_j}{Z} = \frac{\exp(-d_j)}{\sum_k \exp(-d_k)}.
 
 The responsibilities are non-negative and sum to one. They represent the posterior probability that component $j$ is responsible for the input, under a uniform prior over components.
 
-This structure appears throughout deep learning under various names. In cross-entropy classification, the logits $z_j$ act as negative distances ($d_j = -z_j$), and the objective becomes $L = -z_y + \log \sum_k \exp(z_k)$, where $y$ is the label: the LSE term plus a clamping term $-z_y$ contributed by supervision, the constrained regime of Section~\ref{sec:regimes}. In attention mechanisms, the scores $s_{ij}$ act as negative distances between query $i$ and key $j$, and softmax normalization produces responsibilities that weight the value vectors. These are direct instances of the LSE objective.
+This structure appears throughout deep learning under various names. In cross-entropy classification, the logits $z_j$ act as negative distances ($d_j = -z_j$), and the objective becomes $L = -z_y + \log \sum_k \exp(z_k)$, where $y$ is the label: the LSE term plus a clamping term $-z_y$ contributed by supervision, the constrained regime of Section~\ref{sec:constrained}. In attention mechanisms, the scores $s_{ij}$ act as negative distances between query $i$ and key $j$, and softmax normalization produces responsibilities that weight the value vectors. These are direct instances of the LSE objective.
 
 \subsection{Classical EM}
 

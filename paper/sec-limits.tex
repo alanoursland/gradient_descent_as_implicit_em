@@ -13,6 +13,7 @@ In this setting, responsibilities do not exist: no quantity sums to one across c
 This is an absence of the required objective structure rather than a failure of the architecture. Implicit EM arises from competition, and competition arises from normalization. Systems with independent outputs may learn useful representations, but they do not perform mixture inference and do not exhibit responsibility-weighted dynamics. The explanatory scope of the framework ends where normalization ends.
 
 \subsection{Scale and Collapse}
+\label{sec:collapse}
 
 A full Gaussian mixture model includes a log-determinant term in the likelihood, a penalty on the volume of each component's covariance. This term prevents collapse: without it, a component could shrink its covariance to zero, placing infinite density on a single point and achieving unbounded likelihood. The log-determinant diverges as the covariance collapses, counterbalancing the density gain.
 

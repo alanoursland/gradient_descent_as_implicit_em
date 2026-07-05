@@ -1,4 +1,5 @@
 \section{Three Regimes of Implicit Inference}
+\label{sec:regimes}
 
 The same mechanism manifests differently under different constraints:
 
@@ -17,6 +18,7 @@ The result is spontaneous specialization. Even from random initialization, compo
 This regime optimizes the same objective as classical EM on mixture models, with the same responsibilities governing both the fixed points and the path toward them.
 
 \subsection{Conditional Regime: Attention Mechanisms}
+\label{sec:attention}
 
 Attention mechanisms instantiate the same structure in a conditional setting. For a query $q_i$ and a set of keys $\{k_j\}$, attention scores are computed as
 \[
@@ -34,7 +36,7 @@ A distinction is required here. Theorem~\ref{thm:main} applies when the log-sum-
 \qquad \text{and} \qquad
 \frac{\partial L}{\partial s_{ij}} = \alpha_{ij} \left( a_{ij} - \bar{a}_i \right).
 \end{equation}
-The first identity is exact and has the same strength as Theorem~\ref{thm:main}: each value receives the downstream error scaled by its responsibility. This is the M-step for internal softmaxes, holding verbatim at every gradient step for any loss. The second identity shows that scores follow an advantage rule: a score rises only if its value is more useful to the downstream error than the current attention-weighted average. \citet{agarwal2025gradient} derive these two laws for transformer attention; they hold for any softmax module. Responsibilities still gate all learning, since both gradients carry the factor $\alpha_{ij}$, but where the loss-level LSE competes on proximity, the internal LSE competes on usefulness. Two consequences follow. Score gradients sum to zero across keys, so internal competition redistributes and cannot uniformly favor all components. And score updates vanish whenever the alignments equalize under the attention weights ($a_{ij} \approx \bar{a}_i$), of which full concentration ($\alpha_{ij^*} \to 1$) is the sharpest case, while value updates persist as long as error remains: the two-timescale dynamic observed by \citet{agarwal2025gradient} follows from the gradient forms..
+The first identity is exact and has the same strength as Theorem~\ref{thm:main}: each value receives the downstream error scaled by its responsibility. This is the M-step for internal softmaxes, holding verbatim at every gradient step for any loss. The second identity shows that scores follow an advantage rule: a score rises only if its value is more useful to the downstream error than the current attention-weighted average. \citet{agarwal2025gradient} derive these two laws for transformer attention; they hold for any softmax module. Responsibilities still gate all learning, since both gradients carry the factor $\alpha_{ij}$, but where the loss-level LSE competes on proximity, the internal LSE competes on usefulness. Two consequences follow. Score gradients sum to zero across keys, so internal competition redistributes and cannot uniformly favor all components. And score updates vanish whenever the alignments equalize under the attention weights ($a_{ij} \approx \bar{a}_i$), of which full concentration ($\alpha_{ij^*} \to 1$) is the sharpest case, while value updates persist as long as error remains: the two-timescale dynamic observed by \citet{agarwal2025gradient} follows from the gradient forms.
 
 There is also a second, exact sense in which attention computes an LSE gradient, in the forward pass itself. The gradient of $\log \sum_j \exp(q^\top k_j)$ with respect to the query is $\sum_j \alpha_j k_j$: the attention read-out is the gradient of a log-sum-exp energy, the retrieval dynamics of modern Hopfield networks \citep{ramsauer2020hopfield}. The forward pass takes an LSE gradient with respect to the state (inference); the backward pass takes responsibility-gated gradients with respect to the parameters (learning).
 
@@ -43,6 +45,7 @@ A second clarification concerns the prototypes. In a Gaussian mixture model, the
 Attention is conditional mixture inference. The query specifies the context; the keys define candidate components; the values represent what each component contributes. The mixture is re-instantiated for every query, but the underlying parameters---$W_Q$, $W_K$, $W_V$---accumulate responsibility-weighted updates across all queries and all training examples. This is implicit EM in function space rather than data space.
 
 \subsection{Constrained Regime: Cross-Entropy Classification}
+\label{sec:constrained}
 
 Cross-entropy classification introduces supervision. Supervision constrains the implicit EM structure but does not remove it.
 
