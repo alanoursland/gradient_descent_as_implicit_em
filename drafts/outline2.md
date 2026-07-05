@@ -97,4 +97,4 @@
 
 ### **8. References**
 
-* *(Populated from the `prior_art.md` list, including Oursland 2024, Aggarwal 2025a/b, etc.)*
+* *(Populated from the `prior_art.md` list, including Oursland 2024, Agarwal 2025a/b, etc.)*

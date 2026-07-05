@@ -24,7 +24,7 @@ Target: 8-10 pages + appendices
 - Standard explanations: emergent properties, architectural coincidences, loose analogies
 
 #### 1.2 Recent Evidence
-- Aggarwal et al. (2025a,b): transformers implement exact Bayesian inference in controlled settings
+- Agarwal et al. (2025a,b): transformers implement exact Bayesian inference in controlled settings
 - Gradient dynamics show EM-like two-timescale structure
 - But: characterized as "structural analogy," not derived from objectives
 
@@ -138,7 +138,7 @@ $$\frac{\partial L}{\partial d_j} = r_j - \mathbb{1}[j = y]$$
 - We establish: objectives turn distances into inference
 - Relationship: geometric substrate → learning dynamics
 
-#### 5.2 Aggarwal et al. (2025a,b)
+#### 5.2 Agarwal et al. (2025a,b)
 - They show: transformers implement exact Bayesian inference (empirical)
 - They show: gradient dynamics are EM-like (mechanistic)
 - They call it: "structural rather than variational"
@@ -210,7 +210,7 @@ $$\frac{\partial L}{\partial d_j} = r_j - \mathbb{1}[j = y]$$
 
 Core:
 - Oursland (2024)
-- Aggarwal et al. (2025a, 2025b)
+- Agarwal et al. (2025a, 2025b)
 - LeCun et al. (2006)
 - Dempster et al. (1977)
 - Vaswani et al. (2017)
@@ -261,7 +261,7 @@ Supporting:
 
 1. **"Three Regimes" not "Applications"** — frames unification as taxonomy, not laundry list
 
-2. **Aggarwal as puzzle-setter, not competitor** — they provide empirical grounding; we provide theoretical explanation
+2. **Agarwal as puzzle-setter, not competitor** — they provide empirical grounding; we provide theoretical explanation
 
 3. **Values vs prototypes resolved explicitly** — in Section 4.2, prevents reviewer confusion
 

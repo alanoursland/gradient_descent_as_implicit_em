@@ -45,7 +45,7 @@ of v1. Material changes:
    (sec-limits, sec-introduction, sec-prior-work, abstract — 2026-07 revision).
 4. **The series is now a trilogy**: Paper III is *Geometric Scaling of Bayesian Inference
    in LLMs* (arXiv 2512.23752) — the value-manifold geometry persists in production models
-   (Pythia, Phi-2, Llama-3, Mistral). Cited as `aggarwal2025scaling`.
+   (Pythia, Phi-2, Llama-3, Mistral). Cited as `agarwal2025scaling`.
 5. As of v5, they do **not** cite our arXiv paper (2512.24780, submitted 2025-12-31),
    despite having seen the draft. Worth tracking for priority purposes.
 

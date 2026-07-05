@@ -223,7 +223,7 @@ This section explicitly resolves the “values vs prototypes” issue.
 
 ---
 
-### 8.2 Relation to Aggarwal et al. (2025a,b)
+### 8.2 Relation to Agarwal et al. (2025a,b)
 
 * Empirical Bayesian geometry vs objective necessity
 * Mechanistic observation vs causal derivation

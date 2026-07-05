@@ -10,11 +10,11 @@ The standard explanations are unsatisfying. One view holds that these are emerge
 
 \subsection{Recent Evidence}
 
-Recent work by \citet{aggarwal2025geometry,aggarwal2025gradient} has sharpened this puzzle considerably. In controlled experimental settings---``Bayesian wind tunnels'' where the true posterior is analytically known---small transformers reproduce Bayesian posteriors with sub-bit precision. This is not approximate Bayesian behavior; it is exact, verifiable, position-by-position agreement with the analytic solution. Capacity-matched MLPs trained under identical conditions fail completely, suggesting that the phenomenon depends on the inductive biases of attention rather than optimization alone.
+Recent work by \citet{agarwal2025geometry,agarwal2025gradient} has sharpened this puzzle considerably. In controlled experimental settings---``Bayesian wind tunnels'' where the true posterior is analytically known---small transformers reproduce Bayesian posteriors with sub-bit precision. This is not approximate Bayesian behavior; it is exact, verifiable, position-by-position agreement with the analytic solution. Capacity-matched MLPs trained under identical conditions fail completely, suggesting that the phenomenon depends on the inductive biases of attention rather than optimization alone.
 
-More striking still is what Aggarwal et al.\ find in the gradient dynamics. Attention weights stabilize early in training while value vectors continue to refine---a two-timescale structure that mirrors the E-step and M-step of classical expectation-maximization. Values receive updates weighted by attention, precisely as prototypes receive updates weighted by responsibilities in mixture models. The authors provide a complete first-order analysis showing that this structure is not incidental but systematic.
+More striking still is what Agarwal et al.\ find in the gradient dynamics. Attention weights stabilize early in training while value vectors continue to refine---a two-timescale structure that mirrors the E-step and M-step of classical expectation-maximization. Values receive updates weighted by attention, precisely as prototypes receive updates weighted by responsibilities in mixture models. The authors provide a complete first-order analysis showing that this structure is not incidental but systematic.
 
-Yet Aggarwal et al.\ explicitly characterize this EM connection as ``structural rather than variational''---an analogy, not a derivation. They observe that attention \emph{behaves like} EM but do not claim that EM is a necessary consequence of the objective. The question of \emph{why} cross-entropy training produces Bayesian geometry remains, in their framing, open.
+Yet Agarwal et al.\ explicitly characterize this EM connection as ``structural rather than variational''---an analogy, not a derivation. They observe that attention \emph{behaves like} EM but do not claim that EM is a necessary consequence of the objective. The question of \emph{why} cross-entropy training produces Bayesian geometry remains, in their framing, open.
 
 \subsection{This Paper}
 
@@ -26,7 +26,7 @@ This paper closes that gap. We show that for objectives with log-sum-exp structu
 
 The immediate consequence is that gradient descent on such objectives \emph{is} expectation-maximization, performed continuously rather than in discrete alternating steps. The forward pass computes unnormalized likelihoods; normalization yields responsibilities; backpropagation delivers responsibility-weighted updates to parameters. No auxiliary latent variables are introduced. No inference algorithm is invoked. The architecture does not approximate EM---it implements EM, because the gradient \emph{is} the responsibility.
 
-This reframes the relationship between optimization and inference. Inference is not a separate algorithmic layer added on top of learning. It is not a post-hoc interpretation of learned representations. Under the objectives we analyze, inference and optimization are the same computation viewed at different levels of abstraction. The Bayesian structure observed by Aggarwal et al.\ is not an emergent property that happens to appear; it is forced by the geometry of the loss.
+This reframes the relationship between optimization and inference. Inference is not a separate algorithmic layer added on top of learning. It is not a post-hoc interpretation of learned representations. Under the objectives we analyze, inference and optimization are the same computation viewed at different levels of abstraction. The Bayesian structure observed by Agarwal et al.\ is not an emergent property that happens to appear; it is forced by the geometry of the loss.
 
 \subsection{Contributions}
 
