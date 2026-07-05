@@ -1,91 +1,76 @@
 \section{Main Result: Responsibilities Are Gradients}
 
-We now state and derive the central result. The derivation is elementary---a single application of the chain rule---but its implications are significant. We show that for log-sum-exp objectives over distances, the gradient with respect to each distance is exactly the negative responsibility of the corresponding component. This identity requires no approximations and holds for any model that computes distances and optimizes an LSE objective via gradient descent. The identity itself is classical: it is Fisher's identity---the gradient of an incomplete-data log-likelihood equals the posterior-expected complete-data gradient \citep{cappe2009online,bishop2006pattern}---specialized to a uniform-prior mixture over exponentiated distances (Section 5.2). The contribution of this paper is not the derivative but the recognition of where it applies: standard neural objectives instantiate this structure over distance-based representations without any modification, so every gradient step of ordinary training is a responsibility-weighted update.
+We now state and derive the central result: for log-sum-exp objectives over distances, the gradient with respect to each distance is exactly the negative responsibility of the corresponding component. The identity requires no approximations and holds for any model that computes distances and optimizes an LSE objective via gradient descent. The identity itself is classical: it is Fisher's identity---the gradient of an incomplete-data log-likelihood equals the posterior-expected complete-data gradient \citep{cappe2009online,bishop2006pattern}---specialized to a uniform-prior mixture over exponentiated distances (Section~\ref{sec:fisher}). The contribution of this paper is not the derivative but the recognition of where it applies: standard neural objectives instantiate this structure over distance-based representations without modification, so every gradient step of ordinary training is a responsibility-weighted update.
 
 \subsection{Derivation}
 
-Let $d_j(x)$ denote the distance or energy associated with component $j$ for input $x$. Define unnormalized likelihoods $P_j = \exp(-d_j)$ and the partition function $Z = \sum_k \exp(-d_k)$. Consider the log-sum-exp objective:
-
+Let $d_j(x)$ denote the distance or energy associated with component $j$ for input $x$. Define unnormalized likelihoods $P_j = \exp(-d_j)$ and the partition function $Z = \sum_k \exp(-d_k)$. Consider the log-sum-exp objective
 \begin{equation}
-L = \log \sum_{j=1}^{K} \exp(-d_j) = \log Z
+L = \log \sum_{j=1}^{K} \exp(-d_j) = \log Z.
 \end{equation}
-
 We compute the gradient of $L$ with respect to a single distance $d_i$:
-
 \[
-\frac{\partial L}{\partial d_i} = \frac{1}{Z} \cdot \frac{\partial}{\partial d_i} \sum_{j=1}^{K} \exp(-d_j)
+\frac{\partial L}{\partial d_i} = \frac{1}{Z} \cdot \frac{\partial}{\partial d_i} \sum_{j=1}^{K} \exp(-d_j).
 \]
-
 Only the $i$-th term in the sum depends on $d_i$:
-
 \[
-\frac{\partial L}{\partial d_i} = \frac{1}{Z} \cdot \frac{\partial}{\partial d_i} \exp(-d_i) = \frac{1}{Z} \cdot (-1) \cdot \exp(-d_i)
+\frac{\partial L}{\partial d_i} = \frac{1}{Z} \cdot \frac{\partial}{\partial d_i} \exp(-d_i) = \frac{1}{Z} \cdot (-1) \cdot \exp(-d_i).
 \]
-
 Simplifying:
-
 \[
-\frac{\partial L}{\partial d_i} = -\frac{\exp(-d_i)}{\sum_k \exp(-d_k)}
+\frac{\partial L}{\partial d_i} = -\frac{\exp(-d_i)}{\sum_k \exp(-d_k)}.
 \]
-
-The right-hand side is the negative of the normalized exponential---precisely the responsibility $r_i$ as defined in Section 2.2. This yields the main result.
+The right-hand side is the normalized exponential, negated: the responsibility $r_i$ defined in Section~\ref{sec:lse}.
 
 \begin{theorem}
-For any objective of the form $L = \log \sum_j \exp(-d_j)$, the gradient with respect to the $j$-th distance is the negative responsibility of component $j$:
-
+\label{thm:main}
+Let $L = \log \sum_j \exp(-d_j)$ for differentiable distances $d_j$. Then the gradient with respect to the $i$-th distance is the negative responsibility of component $i$:
 \begin{equation}
-\frac{\partial L}{\partial d_j} = -r_j \quad \text{where} \quad r_j = \frac{\exp(-d_j)}{\sum_k \exp(-d_k)}
+\label{eq:main-identity}
+\frac{\partial L}{\partial d_i} = -r_i, \qquad r_i = \frac{\exp(-d_i)}{\sum_k \exp(-d_k)}.
 \end{equation}
-
-No approximations have been made. The identity holds exactly whenever the objective has LSE form and the distances are differentiable.
 \end{theorem}
 
 \subsection{What This Means}
 
-The theorem admits a direct interpretation: responsibilities are not quantities that must be computed and stored. They are gradients. Any system that computes distances, applies a log-sum-exp objective, and updates parameters via gradient descent is already computing responsibilities---not as an intermediate step, but as the learning signal itself.
+The theorem admits a direct interpretation. In classical EM, responsibilities are computed in the E-step and stored for use in the M-step. Under gradient descent on an LSE objective, the same quantities appear as the gradients themselves: any system that computes distances and optimizes this objective produces responsibilities in the course of backpropagation, where they act directly as the learning signal.
 
-Note that the identity itself is purely algebraic---it holds for any log-sum-exp objective regardless of how one interprets the quantities involved. The EM interpretation, however, depends on reading the $d_j$ as distances and the $r_j$ as posterior responsibilities. The mathematics forces the gradient structure; the semantics give it meaning.
+The identity is purely algebraic and holds regardless of interpretation; the EM reading additionally requires interpreting the $d_j$ as distances and the $r_j$ as posterior responsibilities, per Section~\ref{sec:distance}.
 
-Consider what happens during training. The forward pass computes distances $d_j$ and evaluates the objective $L = \log \sum_j \exp(-d_j)$. This computation implicitly determines the responsibilities $r_j = \exp(-d_j) / Z$, but they are never explicitly represented. Backpropagation then computes $\partial L / \partial d_j = -r_j$, and the chain rule propagates this gradient to the parameters that produced $d_j$. The parameters of component $j$ receive gradient signal proportional to $r_j$---the responsibility of that component for the input.
+Consider what happens during training. The forward pass computes distances $d_j$ and evaluates the objective $L = \log \sum_j \exp(-d_j)$; the responsibilities are not computed as such. Backpropagation then computes $\partial L / \partial d_j = -r_j$, and the chain rule propagates this gradient to the parameters that produced $d_j$. The parameters of component $j$ thus receive gradient signal proportional to $r_j$, the responsibility of that component for the input. This is the M-step of expectation-maximization, performed within the gradient computation: the forward pass plays the role of the E-step, the backward pass the role of the M-step, fused rather than alternating.
 
-This is exactly the M-step of expectation-maximization. In classical EM, responsibilities are computed in the E-step and then used to weight parameter updates in the M-step. Here, no E-step is required as a separate operation. The forward pass \emph{is} the E-step; the backward pass \emph{is} the M-step. The two are fused into a single gradient computation.
+The consequence is that gradient descent on LSE objectives performs a generalized EM implicitly. The precise relationship is inherited from classical results: the gradient is the responsibility-weighted update direction (Fisher's identity), and the EM step is that same gradient under a positive-definite preconditioner \citep{xu1996convergence}---the two methods share update structure, though not trajectories \citep{zhang2020comparing}. The discrete alternation of classical EM---compute responsibilities, then update parameters, then repeat---is likewise not fundamental: E and M are coordinate ascent on a single objective \citep{neal1998view}, and under gradient descent they collapse into continuous, simultaneous optimization. Every gradient step is a responsibility-weighted update; every network trained on these objectives has been performing responsibility-weighted learning throughout.
 
-The consequence is that gradient descent on LSE objectives performs EM implicitly. The precise relationship is inherited from classical results: the gradient is the responsibility-weighted update direction (Fisher's identity), and the EM step is that same gradient under a positive-definite preconditioner \citep{xu1996convergence}---the two methods share update structure, though not trajectories \citep{zhang2020comparing}. The discrete alternation of classical EM---compute responsibilities, then update parameters, then repeat---is likewise not fundamental: E and M are coordinate ascent on a single objective \citep{neal1998view}, and under gradient descent they collapse into continuous, simultaneous optimization. Every gradient step is a responsibility-weighted update. Every trained network has been doing responsibility-weighted learning all along.
-
-Throughout this paper, ``implicit EM'' refers to the emergence of responsibility-weighted parameter updates under gradient descent on log-sum-exp objectives---not to coordinate-ascent EM or guarantees about convergence.
+Throughout this paper, ``implicit EM'' refers to the emergence of responsibility-weighted parameter updates under gradient descent on log-sum-exp objectives. The term carries no claim of coordinate-ascent structure or convergence guarantees.
 
 \subsection{Conditions}
 
-The result depends on three structural conditions. When all three are satisfied, implicit EM dynamics are not optional---they are forced by the mathematics.
+The result depends on three structural conditions. When all three are satisfied, implicit EM dynamics follow necessarily.
 
-\textbf{Exponentiation.} The distances must be passed through an exponential to form unnormalized likelihoods $P_j = \exp(-d_j)$. This transformation converts additive differences in distance into multiplicative ratios in likelihood. Without exponentiation, the gradient with respect to $d_j$ does not yield a normalized quantity, and responsibilities do not emerge. Under the Mahalanobis reading of Section 2.1, this condition is not an additional assumption: the distance is a negative log-density, and exponentiation merely inverts the logarithm.
+\textbf{Exponentiation.} The distances must be passed through an exponential to form unnormalized likelihoods $P_j = \exp(-d_j)$. This transformation converts additive differences in distance into multiplicative ratios in likelihood. Without exponentiation, differences in distance enter the gradient linearly rather than as likelihood ratios, and no responsibility structure can form. Under the Mahalanobis reading of Section~\ref{sec:distance}, this condition comes without additional assumptions: the distance is a negative log-density, and exponentiation merely inverts the logarithm.
 
-\textbf{Normalization.} The likelihoods must be normalized across alternatives, either explicitly through softmax or implicitly through the log-sum-exp structure. Normalization induces competition: increasing the likelihood of one component necessarily decreases the relative likelihood of others. This competition is what makes responsibilities sum to one and what causes gradient signal to be distributed according to relative fit. Without normalization, components operate independently, and there is no assignment structure.
+\textbf{Normalization.} The likelihoods must be normalized across alternatives, either explicitly through softmax or implicitly through the log-sum-exp structure. Normalization induces competition: increasing the likelihood of one component necessarily decreases the relative likelihood of others. This competition makes responsibilities sum to one and distributes gradient signal according to relative fit. Without normalization, components operate independently, and there is no assignment structure.
 
 \textbf{Gradient-based optimization.} The parameters must be updated via gradients of the objective. The identity $\partial L / \partial d_j = -r_j$ is a fact about the loss surface; it becomes a fact about learning dynamics only when gradient descent (or a variant) is used. Other optimization methods---evolutionary strategies, random search, discrete updates---would not automatically inherit the responsibility-weighted structure.
 
-When these conditions hold, there is no additional design choice that enables or disables EM-like behavior. It is a consequence of the objective geometry. Any architecture that computes distances, normalizes via exponentiation, and trains with gradients will exhibit implicit EM.
+When these conditions hold, no additional design choice enables or disables the behavior: any architecture that computes distances, normalizes via exponentiation, and trains with gradients will exhibit implicit EM.
 
 \subsection{Completing the Gaussian: The Volume Term}
 
-The analysis so far treats the distances $d_j$ as given, which corresponds to mixture components of fixed shape. A full Gaussian likelihood carries an additional normalization term---the volume of each component's covariance---and neural objectives that omit it are exposed to metric collapse (Section 6.2). For the common case where distances are computed by linear layers, this missing term is itself expressible in network primitives, and Theorem 1 extends to it verbatim.
+The analysis so far treats the distances $d_j$ as given, which corresponds to mixture components of fixed shape. A full Gaussian likelihood carries an additional normalization term, the volume of each component's covariance, and neural objectives that omit it are exposed to metric collapse (Section~\ref{sec:collapse}). For the common case where distances are computed by linear layers, this missing term is itself expressible in network primitives, and Theorem~\ref{thm:main} extends to it verbatim.
 
-Let component $j$ compute $z_j = W_j x + b_j$ with $W_j$ square and full-rank, and define the \emph{volume-corrected energy}:
-
+Let component $j$ compute $z_j = W_j x + b_j$ with $W_j$ square and full-rank, and define the volume-corrected energy
 \begin{equation}
-\tilde{e}_j \;=\; \tfrac{1}{2}\|z_j\|^2 - \log\lvert\det W_j\rvert
+\tilde{e}_j \;=\; \tfrac{1}{2}\|z_j\|^2 - \log\lvert\det W_j\rvert.
 \end{equation}
-
-Then $\exp(-\tilde{e}_j) = \lvert\det W_j\rvert \exp(-\tfrac{1}{2}\|W_j x + b_j\|^2)$, which is, up to the constant $(2\pi)^{-D/2}$ shared by all components, exactly the density $\mathcal{N}(x;\, \mu_j, \Sigma_j)$ with $\mu_j = -W_j^{-1} b_j$ and $\Sigma_j^{-1} = W_j^\top W_j$. The identity $\lvert\Sigma_j\rvert^{-1/2} = \lvert\det W_j\rvert$ is the change-of-variables Jacobian familiar from normalizing flows \citep{rezende2015variational}. The log-sum-exp objective over volume-corrected energies, $L = \log \sum_j \exp(-\tilde{e}_j)$, is therefore the exact log marginal likelihood of a full Gaussian mixture---no proportionality, no fixed-covariance assumption---and Theorem 1 applies unchanged: $\partial L / \partial \tilde{e}_j = -r_j$, where $r_j$ is now the exact posterior responsibility under fully normalized components.
+Then $\exp(-\tilde{e}_j) = \lvert\det W_j\rvert \exp(-\tfrac{1}{2}\|W_j x + b_j\|^2)$, which is, up to the constant $(2\pi)^{-D/2}$ shared by all components, exactly the density $\mathcal{N}(x;\, \mu_j, \Sigma_j)$ with $\mu_j = -W_j^{-1} b_j$ and $\Sigma_j^{-1} = W_j^\top W_j$. The identity $\lvert\Sigma_j\rvert^{-1/2} = \lvert\det W_j\rvert$ is the change-of-variables Jacobian familiar from normalizing flows \citep{rezende2015variational}. The log-sum-exp objective over volume-corrected energies, $L = \log \sum_j \exp(-\tilde{e}_j)$, is therefore the exact log marginal likelihood of a full Gaussian mixture, with no proportionality constant and no fixed-covariance assumption, and Theorem~\ref{thm:main} applies unchanged: $\partial L / \partial \tilde{e}_j = -r_j$, where $r_j$ is now the exact posterior responsibility under fully normalized components.
 
 Two consequences follow. First, implicit EM extends from means to covariances. The gradient of the objective with respect to the weight matrix is, per sample,
-
 \begin{equation}
-\frac{\partial L}{\partial W_j} \;=\; r_j \left( W_j^{-\top} - z_j x^\top \right)
+\frac{\partial L}{\partial W_j} \;=\; r_j \left( W_j^{-\top} - z_j x^\top \right),
 \end{equation}
+which is the responsibility times the gradient of the complete-data Gaussian log-likelihood: Fisher's identity at the parameter level. Gradient descent on this objective performs responsibility-weighted updates to the full component geometry, as the M-step of full-covariance EM does.
 
-which is the responsibility times the gradient of the complete-data Gaussian log-likelihood---Fisher's identity at the parameter level. Gradient descent on this objective performs responsibility-weighted updates to the full component geometry, exactly as the M-step of full-covariance EM does.
+Second, the volume term removes the trivial collapse mode. Without it, the objective $\exp(-d_j)$ alone is maximized by shrinking the learned metric: driving $W_j \to 0$ maps every input to the prototype, sending all distances to zero and all likelihoods to one. The $\log\lvert\det W_j\rvert$ term sends that configuration to $-\infty$, and equilibrium is reached where the learned metric matches the data's covariance: growing $W_j$ is rewarded by volume but punished quadratically by distance, and vice versa. The classical single-point singularity of Gaussian mixture MLE---a component locking onto one data point and shrinking its variance without bound---remains, as it does in classical EM \citep{bishop2006pattern}, and is mitigated in practice by batch averaging or bounded parameterizations. Computationally, the determinant is cheap under standard parameterizations: for diagonal or triangular $W_j$, $\log\lvert\det W_j\rvert$ is a sum of log-diagonals, at $O(D)$ cost.
 
-Second, the volume term removes the trivial collapse mode. Without it, the objective $\exp(-d_j)$ alone is maximized by shrinking the learned metric---driving $W_j \to 0$ maps every input to the prototype, sending all distances to zero and all likelihoods to one. The $\log\lvert\det W_j\rvert$ term sends that configuration to $-\infty$, and equilibrium is reached where the learned metric matches the data's covariance: growing $W_j$ is rewarded by volume but punished quadratically by distance, and vice versa. The classical single-point singularity of Gaussian mixture MLE---a component locking onto one data point and shrinking its variance without bound---remains, as it does in classical EM \citep{bishop2006pattern}, and is mitigated in practice by batch averaging or bounded parameterizations. Computationally, the determinant is cheap under standard parameterizations: for diagonal or triangular $W_j$, $\log\lvert\det W_j\rvert$ is a sum of log-diagonals, at $O(D)$ cost.
-
-The point is not that practitioners should always add this term. It is that the framework is constructive as well as diagnostic: the same primitives that compute distances can compute the volume correction, the corrected objective is the exact mixture likelihood, and the implicit EM identity survives intact. Where Section 6.2 explains why omitting the term invites collapse, this section shows what including it costs---one log-determinant---and what it buys.
+The framework is thus constructive as well as diagnostic: the same primitives that compute distances can compute the volume correction, the corrected objective is the exact mixture likelihood, and the implicit EM identity survives intact. Where Section~\ref{sec:collapse} explains why omitting the term invites collapse, this section shows what including it costs---one log-determinant---and what it buys. Whether practitioners should add the term in a given setting is a separate engineering question.

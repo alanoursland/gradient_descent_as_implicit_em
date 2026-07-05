@@ -1,65 +1,71 @@
 \section{The Geometric Substrate}
 
-The main result of this paper---that responsibilities emerge as gradients---rests on a specific geometric foundation. This section establishes that foundation. We first summarize the interpretation of neural network outputs as distances or energies rather than confidences, importing this result from prior work. We then define the class of log-sum-exp objectives to which our analysis applies. Finally, we briefly recall the structure of classical expectation-maximization, not because our method requires it, but to establish the reference point against which implicit EM will be compared.
+The main result of this paper---that responsibilities emerge as gradients---rests on a specific geometric foundation. This section establishes that foundation. We first summarize the interpretation of neural network outputs as distances or energies rather than confidences, importing this result from prior work. We then define the class of log-sum-exp objectives to which our analysis applies. Finally, we recall the structure of classical expectation-maximization, which serves only as the reference point against which implicit EM will be compared.
 
 \subsection{Distance-Based Representations}
 
-The standard interpretation of neural network outputs treats them as confidences or scores indicating the strength of evidence for a hypothesis. A logit is high when the network ``believes'' in a class; an attention score is high when a query ``matches'' a key. This interpretation, while intuitive, obscures the geometric structure of what neural networks actually compute.
+The standard interpretation of neural network outputs treats them as confidences or scores indicating the strength of evidence for a hypothesis. A logit is high when the network ``believes'' in a class; an attention score is high when a query ``matches'' a key. This interpretation, while intuitive, obscures the geometric structure of the underlying computation.
 
-In prior work \citep{oursland2024interpreting}, we developed a different interpretation: the outputs of standard neural networks are better understood as distances or energies relative to learned prototypes. A linear layer followed by an absolute value or ReLU activation computes a quantity that behaves as a (possibly signed) deviation from a learned reference---a Mahalanobis distance along a principal direction. Concretely, the Mahalanobis distance of a point $x$ from a Gaussian component with mean $\mu$ and principal direction $v$ scaled by eigenvalue $\lambda$ is $|{\lambda}^{-1/2} v^\top (x - \mu)|$, which has the form $|Wx + b|$ for appropriate $W$ and $b$. Standard ReLU networks compute this via the identity $|z| = \text{relu}(z) + \text{relu}(-z)$, decomposing signed distance into two half-space detectors. Under this view, a low output indicates proximity to a prototype; a high output indicates deviation. Probabilities are not primitive quantities but derived ones, arising only after exponentiation and normalization transform distances into relative likelihoods. Empirical companions to that work test the distance-metric hypothesis directly \citep{oursland2024distance,oursland2025learn}.
+In prior work \citep{oursland2024interpreting}, we developed a different interpretation: the outputs of standard neural networks are better understood as distances or energies relative to learned prototypes. The correspondence is direct. The Mahalanobis distance of a point $x$ from a Gaussian component with mean $\mu$, measured along a principal direction $v$ with eigenvalue $\lambda$, is
 
-The Mahalanobis form is what makes the passage to probability canonical rather than chosen. A Mahalanobis distance is, by construction, the negative logarithm of a Gaussian density up to constants: $d^2 = (x-\mu)^\top \Sigma^{-1} (x-\mu) = -2\log \mathcal{N}(x;\mu,\Sigma) + \text{const}$. To interpret an output as a Mahalanobis distance is therefore already to interpret it as a log-domain probabilistic quantity. Exponentiation, in the sections that follow, does not impose a probability model on the network---it inverts the logarithm and recovers the density the distance came from. This is the sense in which the distance reading is the load-bearing step of the entire framework: for a generic score, $\exp(-d)$ is one transformation among many; for a Mahalanobis distance, it is the unique inverse of the definition. Everything downstream---likelihoods, responsibilities, implicit EM---follows from this single semantic commitment.
+\begin{equation}
+d(x) = |\lambda^{-1/2} v^\top (x - \mu)| = |w^\top x + b|, \qquad w = \lambda^{-1/2} v, \quad b = -\lambda^{-1/2} v^\top \mu,
+\end{equation}
 
-This interpretation reflects the structure of the computation itself: the weights of a linear layer define a basis; the biases define offsets along that basis; the activation measures deviation. What changes is not the computation but the semantics we assign to it. Throughout this paper, we adopt the distance-based interpretation and refer to neural outputs as energies or distances interchangeably. We emphasize, however, that the main result does not depend on this reading: the gradient identity of Section 3 is purely algebraic and holds for arbitrary energies. The distance interpretation supplies the semantics under which that identity deserves the name \emph{inference}---it motivates the framework rather than propping up the mathematics.
+which is a linear layer followed by an absolute value. Standard ReLU networks compute the same quantity via the identity $|z| = \mathrm{relu}(z) + \mathrm{relu}(-z)$, decomposing the signed deviation into two half-space detectors. Under this view, a low output indicates proximity to a prototype and a high output indicates deviation, and probabilities are derived quantities, arising only after exponentiation and normalization transform distances into relative likelihoods. Empirical companions to that work test the distance-metric hypothesis directly \citep{oursland2024distance,oursland2025learn}.
+
+The Mahalanobis form is what makes the passage to probability canonical rather than chosen. A Mahalanobis distance is, by construction, the negative logarithm of a Gaussian density up to constants: $d^2 = (x-\mu)^\top \Sigma^{-1} (x-\mu) = -2\log \mathcal{N}(x;\mu,\Sigma) + \text{const}$. To interpret an output as a Mahalanobis distance is therefore already to interpret it as a log-domain probabilistic quantity. Exponentiation, in the sections that follow, inverts this logarithm and recovers the density the distance came from, rather than imposing a probability model on the network. This is the sense in which the distance reading is the load-bearing step of the framework: for a generic score, $\exp(-d)$ is one transformation among many; for a Mahalanobis distance, it is the unique inverse of the definition. Everything downstream---likelihoods, responsibilities, implicit EM---follows from this single semantic commitment.
+
+This interpretation reflects the structure of the computation itself: the weights of a linear layer define a basis, the biases define offsets along that basis, and the activation measures deviation. The computation is unchanged in either reading; what differs is the semantics assigned to it. Throughout this paper, we adopt the distance-based interpretation and refer to neural outputs as energies or distances interchangeably. We emphasize, however, that the main result does not depend on this reading: the gradient identity of Section~\ref{sec:main-result} is purely algebraic and holds for arbitrary energies. The distance interpretation supplies the semantics under which that identity deserves the name inference; it motivates the framework rather than carrying the mathematics.
 
 \subsection{The Log-Sum-Exp Objective}
 
-Given a set of distances or energies $\{d_1, d_2, \ldots, d_K\}$ computed for an input $x$, we consider objectives of the form:
+Given a set of distances or energies $\{d_1, d_2, \ldots, d_K\}$ computed for an input $x$, we consider objectives of the form
 
 \begin{equation}
-L(x) = \log \sum_{j=1}^{K} \exp(-d_j(x))
+L(x) = \log \sum_{j=1}^{K} \exp(-d_j(x)).
 \end{equation}
 
 This objective admits two readings, and the order in which they are taken matters to this paper.
 
-The first reading is geometric and requires no probability at all. The negative of $L$ is the \emph{soft minimum} of the distances: for $K$ components,
+The first reading is geometric and requires no probability at all. The negative of $L$ is the soft minimum of the distances: for $K$ components,
 
 \[
-\min_j d_j - \log K \;\leq\; -L \;\leq\; \min_j d_j
+\min_j d_j - \log K \;\leq\; -L \;\leq\; \min_j d_j,
 \]
 
-so minimizing $-L$ minimizes, up to an additive constant, the distance from the input to the \emph{nearest} prototype. The LSE objective is the smooth answer to a design question: given a set of distances, what loss says ``be close to at least one of them''? It is the distance-to-a-set, softened enough to be differentiable. Under this reading, the gradient concentration of Theorem 1---signal flowing to the closest component---is simply the smooth analogue of the fact that a minimum is attained at its argmin. This design-first route is, in fact, how the present framework was arrived at: starting from distance-based representations and asking what objective should consume a distance, one is led to exponentiation (distance to likelihood), normalization (comparison across alternatives), and the logarithm (back to the distance domain)---at which point the mixture model is discovered already inside the loss, not imposed on it.
+so minimizing $-L$ minimizes, up to an additive constant, the distance from the input to the nearest prototype. The LSE objective is thus the smooth form of a distance-to-a-set: the loss that requires the input to be close to at least one prototype, softened enough to be differentiable. Under this reading, the gradient concentration of Theorem~\ref{thm:main}---signal flowing to the closest component---is the smooth analogue of a minimum being attained at its argmin. This design-first route is how the framework was arrived at: starting from distance-based representations and asking what objective should consume a distance, one is led to exponentiation (distance to likelihood), normalization (comparison across alternatives), and the logarithm (back to the distance domain), at which point the mixture model is discovered already inside the loss rather than imposed on it.
 
-The second reading is probabilistic: if $\exp(-d_j)$ represents the unnormalized likelihood that component $j$ generated the input, then $L$ is the log marginal likelihood---the log-probability that \emph{some} component generated it. Maximizing $L$ encourages the model to place at least one prototype close to each input. The two readings pick out the same objective; the geometric one explains why it is natural, the probabilistic one explains what its gradients mean.
+The second reading is probabilistic: if $\exp(-d_j)$ is read as the unnormalized likelihood that component $j$ generated the input, then $L$ is the log marginal likelihood, the log-probability that at least one component generated it. Maximizing $L$ encourages the model to place at least one prototype close to each input. The two readings pick out the same objective; the geometric one explains why it is natural, the probabilistic one explains what its gradients mean.
 
-We adopt the following notation throughout. Let $P_j = \exp(-d_j)$ denote the unnormalized likelihood of component $j$. Let $Z = \sum_k P_k = \sum_k \exp(-d_k)$ denote the partition function. Define the responsibility of component $j$ as:
+We adopt the following notation throughout. Let $P_j = \exp(-d_j)$ denote the unnormalized likelihood of component $j$, and let $Z = \sum_k P_k = \sum_k \exp(-d_k)$ denote the partition function. Define the responsibility of component $j$ as
 
 \begin{equation}
-r_j = \frac{P_j}{Z} = \frac{\exp(-d_j)}{\sum_k \exp(-d_k)}
+r_j = \frac{P_j}{Z} = \frac{\exp(-d_j)}{\sum_k \exp(-d_k)}.
 \end{equation}
 
 The responsibilities are non-negative and sum to one. They represent the posterior probability that component $j$ is responsible for the input, under a uniform prior over components.
 
-This structure appears throughout deep learning under various names. In cross-entropy classification, the logits $z_j$ act as negative distances ($d_j = -z_j$), and the objective becomes $L = -z_y + \log \sum_k \exp(z_k)$, where $y$ is the label. In attention mechanisms, the scores $s_{ij}$ act as negative distances between query $i$ and key $j$, and softmax normalization produces responsibilities that weight the value vectors. These are not analogies to the LSE objective; they are instances of it.
+This structure appears throughout deep learning under various names. In cross-entropy classification, the logits $z_j$ act as negative distances ($d_j = -z_j$), and the objective becomes $L = -z_y + \log \sum_k \exp(z_k)$, where $y$ is the label: the LSE term plus a clamping term $-z_y$ contributed by supervision, the constrained regime of Section~\ref{sec:regimes}. In attention mechanisms, the scores $s_{ij}$ act as negative distances between query $i$ and key $j$, and softmax normalization produces responsibilities that weight the value vectors. These are direct instances of the LSE objective.
 
 \subsection{Classical EM}
 
-Expectation-maximization is the classical algorithm for fitting mixture models with latent assignments. It proceeds in two alternating steps.
+Expectation-maximization is the classical algorithm for fitting mixture models with latent assignments. It alternates between two steps.
 
-In the E-step, responsibilities are computed. Given current parameters, each data point is softly assigned to each component based on relative likelihood:
-
-\[
-r_j^{(t)} = \frac{P(x \mid \theta_j)}{\sum_k P(x \mid \theta_k)}
-\]
-
-These responsibilities sum to one and represent the posterior probability that component $j$ generated the observation.
-
-In the M-step, parameters are updated. Each component's parameters are adjusted to better fit the data points assigned to it, weighted by responsibility:
+In the E-step, responsibilities are computed: given current parameters, each data point is softly assigned to each component according to relative likelihood,
 
 \[
-\theta_j^{(t+1)} = \arg\max_{\theta_j} \sum_i r_{ij}^{(t)} \log P(x_i \mid \theta_j)
+r_j^{(t)} = \frac{P(x \mid \theta_j)}{\sum_k P(x \mid \theta_k)}.
 \]
 
-For Gaussian mixtures, this reduces to computing responsibility-weighted means and covariances. The key property is that every data point influences every component, but the influence is gated by how much responsibility that component holds for that point.
+The responsibilities sum to one and represent the posterior probability that component $j$ generated the observation. (We present the uniform-mixing-weight case, matching the uniform prior of Section~\ref{sec:lse}; general EM weights each likelihood by a mixing proportion $\pi_j$ and updates the $\pi_j$ alongside the component parameters.)
 
-Classical EM is discrete and alternating: compute all responsibilities, then update all parameters, then repeat. The E-step and M-step are separate procedures with distinct computational roles. This separation is algorithmic, not fundamental: \citet{neal1998view} showed that both steps are coordinate ascent on a single free-energy objective, a view whose consequences for gradient-based training we develop in what follows.
+In the M-step, parameters are updated: each component is adjusted to better fit the points assigned to it, weighted by responsibility,
+
+\[
+\theta_j^{(t+1)} = \arg\max_{\theta_j} \sum_i r_{ij}^{(t)} \log P(x_i \mid \theta_j).
+\]
+
+For Gaussian mixtures, this reduces to computing responsibility-weighted means and covariances. The key property is that every data point influences every component, with the influence gated by how much responsibility that component holds for that point.
+
+Classical EM is discrete and alternating: compute all responsibilities, then update all parameters, then repeat. The E-step and M-step are separate procedures with distinct computational roles. This separation is algorithmic rather than fundamental: \citet{neal1998view} showed that both steps are coordinate ascent on a single free-energy objective, a view whose consequences for gradient-based training we develop in what follows.
