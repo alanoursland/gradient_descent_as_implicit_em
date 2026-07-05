@@ -20,7 +20,7 @@ For theory, the framework dissolves a long-standing separation. Optimization and
 
 \subsection{Open Directions}
 
-Several directions remain open. The absence of volume control in neural objectives---the missing log-determinant---leads to collapse risks that are currently managed by heuristics. A principled approach would either derive implicit volume terms from architectural choices or design objectives that include them explicitly. Understanding when normalization layers substitute for volume control, and when they do not, would connect the implicit EM framework to practical stability concerns.
+Several directions remain open. The absence of volume control in most neural objectives---the missing log-determinant---leads to collapse risks that are currently managed by heuristics. Section 3.4 supplies the exact term for the linear-layer case, where the volume correction is a log-determinant of the same weights that compute the distance. What remains open is the general case: deriving implicit volume terms for deep, nonlinear compositions of distance layers, and understanding when normalization layers substitute for explicit volume control and when they do not. Answering this would connect the implicit EM framework to practical stability concerns across architectures.
 
 Supervision in real settings is rarely clean. Labels may be noisy, partial, or uncertain. The constrained regime analysis assumes hard labels that clamp responsibilities exactly; a fuller treatment would model soft or probabilistic supervision as partial constraints on the responsibility structure. This could unify semi-supervised learning, label smoothing, and learning from crowds under the implicit EM framework.
 

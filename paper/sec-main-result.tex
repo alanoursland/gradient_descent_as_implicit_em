@@ -58,10 +58,34 @@ Throughout this paper, ``implicit EM'' refers to the emergence of responsibility
 
 The result depends on three structural conditions. When all three are satisfied, implicit EM dynamics are not optional---they are forced by the mathematics.
 
-\textbf{Exponentiation.} The distances must be passed through an exponential to form unnormalized likelihoods $P_j = \exp(-d_j)$. This transformation converts additive differences in distance into multiplicative ratios in likelihood. Without exponentiation, the gradient with respect to $d_j$ does not yield a normalized quantity, and responsibilities do not emerge.
+\textbf{Exponentiation.} The distances must be passed through an exponential to form unnormalized likelihoods $P_j = \exp(-d_j)$. This transformation converts additive differences in distance into multiplicative ratios in likelihood. Without exponentiation, the gradient with respect to $d_j$ does not yield a normalized quantity, and responsibilities do not emerge. Under the Mahalanobis reading of Section 2.1, this condition is not an additional assumption: the distance is a negative log-density, and exponentiation merely inverts the logarithm.
 
 \textbf{Normalization.} The likelihoods must be normalized across alternatives, either explicitly through softmax or implicitly through the log-sum-exp structure. Normalization induces competition: increasing the likelihood of one component necessarily decreases the relative likelihood of others. This competition is what makes responsibilities sum to one and what causes gradient signal to be distributed according to relative fit. Without normalization, components operate independently, and there is no assignment structure.
 
 \textbf{Gradient-based optimization.} The parameters must be updated via gradients of the objective. The identity $\partial L / \partial d_j = -r_j$ is a fact about the loss surface; it becomes a fact about learning dynamics only when gradient descent (or a variant) is used. Other optimization methods---evolutionary strategies, random search, discrete updates---would not automatically inherit the responsibility-weighted structure.
 
 When these conditions hold, there is no additional design choice that enables or disables EM-like behavior. It is a consequence of the objective geometry. Any architecture that computes distances, normalizes via exponentiation, and trains with gradients will exhibit implicit EM.
+
+\subsection{Completing the Gaussian: The Volume Term}
+
+The analysis so far treats the distances $d_j$ as given, which corresponds to mixture components of fixed shape. A full Gaussian likelihood carries an additional normalization term---the volume of each component's covariance---and neural objectives that omit it are exposed to metric collapse (Section 6.2). For the common case where distances are computed by linear layers, this missing term is itself expressible in network primitives, and Theorem 1 extends to it verbatim.
+
+Let component $j$ compute $z_j = W_j x + b_j$ with $W_j$ square and full-rank, and define the \emph{volume-corrected energy}:
+
+\begin{equation}
+\tilde{e}_j \;=\; \tfrac{1}{2}\|z_j\|^2 - \log\lvert\det W_j\rvert
+\end{equation}
+
+Then $\exp(-\tilde{e}_j) = \lvert\det W_j\rvert \exp(-\tfrac{1}{2}\|W_j x + b_j\|^2)$, which is, up to the constant $(2\pi)^{-D/2}$ shared by all components, exactly the density $\mathcal{N}(x;\, \mu_j, \Sigma_j)$ with $\mu_j = -W_j^{-1} b_j$ and $\Sigma_j^{-1} = W_j^\top W_j$. The identity $\lvert\Sigma_j\rvert^{-1/2} = \lvert\det W_j\rvert$ is the change-of-variables Jacobian familiar from normalizing flows \citep{rezende2015variational}. The log-sum-exp objective over volume-corrected energies, $L = \log \sum_j \exp(-\tilde{e}_j)$, is therefore the exact log marginal likelihood of a full Gaussian mixture---no proportionality, no fixed-covariance assumption---and Theorem 1 applies unchanged: $\partial L / \partial \tilde{e}_j = -r_j$, where $r_j$ is now the exact posterior responsibility under fully normalized components.
+
+Two consequences follow. First, implicit EM extends from means to covariances. The gradient of the objective with respect to the weight matrix is, per sample,
+
+\begin{equation}
+\frac{\partial L}{\partial W_j} \;=\; r_j \left( W_j^{-\top} - z_j x^\top \right)
+\end{equation}
+
+which is the responsibility times the gradient of the complete-data Gaussian log-likelihood---Fisher's identity at the parameter level. Gradient descent on this objective performs responsibility-weighted updates to the full component geometry, exactly as the M-step of full-covariance EM does.
+
+Second, the volume term removes the trivial collapse mode. Without it, the objective $\exp(-d_j)$ alone is maximized by shrinking the learned metric---driving $W_j \to 0$ maps every input to the prototype, sending all distances to zero and all likelihoods to one. The $\log\lvert\det W_j\rvert$ term sends that configuration to $-\infty$, and equilibrium is reached where the learned metric matches the data's covariance: growing $W_j$ is rewarded by volume but punished quadratically by distance, and vice versa. The classical single-point singularity of Gaussian mixture MLE---a component locking onto one data point and shrinking its variance without bound---remains, as it does in classical EM \citep{bishop2006pattern}, and is mitigated in practice by batch averaging or bounded parameterizations. Computationally, the determinant is cheap under standard parameterizations: for diagonal or triangular $W_j$, $\log\lvert\det W_j\rvert$ is a sum of log-diagonals, at $O(D)$ cost.
+
+The point is not that practitioners should always add this term. It is that the framework is constructive as well as diagnostic: the same primitives that compute distances can compute the volume correction, the corrected objective is the exact mixture likelihood, and the implicit EM identity survives intact. Where Section 6.2 explains why omitting the term invites collapse, this section shows what including it costs---one log-determinant---and what it buys.

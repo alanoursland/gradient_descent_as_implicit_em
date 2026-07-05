@@ -140,4 +140,48 @@ grad = num_grad(loglik, mu.flatten()).reshape(Kc, dim)    # dL/dmu_j
 precond_step = (sigma2 / Nj)[:, None] * grad              # P_j = sigma2 I / N_j
 report("EM step = P * grad", mu_em - mu, precond_step)
 
+# ----------------------------------------------------------------------------
+print("7. Volume identity: |Sigma|^(-1/2) = |det W| for Sigma^(-1) = W^T W")
+D = 4
+Wv = rng.normal(size=(D, D))
+Sigma = np.linalg.inv(Wv.T @ Wv)
+lhs = np.abs(np.linalg.det(Sigma)) ** -0.5
+rhs = np.abs(np.linalg.det(Wv))
+report("volume identity", np.array([lhs]), np.array([rhs]))
+
+# ----------------------------------------------------------------------------
+print("8. Volume-corrected Fisher identity: dL/dW_j = r_j (W_j^-T - z_j x^T)")
+# L = log sum_j exp(log|det W_j| - 0.5 ||W_j x + b_j||^2)  (exact full-Gaussian
+# mixture log-likelihood up to a shared constant). Section 3.4 of the paper.
+Kc = 3
+Ws = rng.normal(size=(Kc, D, D)) * 0.8
+bs = rng.normal(size=(Kc, D))
+xs = rng.normal(size=D)
+
+
+def energies(W_flat):
+    W_ = W_flat.reshape(Kc, D, D)
+    e = np.empty(Kc)
+    for j in range(Kc):
+        z = W_[j] @ xs + bs[j]
+        e[j] = 0.5 * z @ z - np.log(np.abs(np.linalg.det(W_[j])))
+    return e
+
+
+def loss_of_W(W_flat):
+    e = energies(W_flat)
+    m = (-e).max()
+    return float(m + np.log(np.exp(-e - m).sum()))
+
+
+e = energies(Ws.flatten())
+r_full = np.exp(-(e - e.min()))
+r_full /= r_full.sum()
+analytic_W = np.empty_like(Ws)
+for j in range(Kc):
+    z = Ws[j] @ xs + bs[j]
+    analytic_W[j] = r_full[j] * (np.linalg.inv(Ws[j]).T - np.outer(z, xs))
+numeric_W = num_grad(loss_of_W, Ws.flatten()).reshape(Kc, D, D)
+report("full-Gaussian M-step direction", analytic_W, numeric_W)
+
 print("\nAll identities verified.")

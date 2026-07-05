@@ -80,7 +80,10 @@ page displays provider-side metadata: **created November 24, 2025** (33 days bef
 trilogy v1), **published December 30, 2025**. It contains the paper's Theorem 1, the
 "responsibilities ARE the gradients" slogan, "EM collapses into gradient descent," the
 supervised/unsupervised regime contrast, the correntropy route, and the log-determinant
-volume analysis — i.e., the paper minus attention, one month early. Caveat recorded in
+volume analysis — i.e., the paper minus attention, one month early. (The log-determinant
+completion from that conversation was added to the paper as §3.4 in the 2026-07 revision,
+with the identities verified numerically — checks 7–8 in
+`experiments/verify_identities.py`.) Caveat recorded in
 the transcript file: the core derivation was *pasted into* that conversation from an
 earlier, not-yet-located chat, so this artifact proves possession by 2025-11-24, not
 first derivation. Because the share link is already public (posted in the announcement
